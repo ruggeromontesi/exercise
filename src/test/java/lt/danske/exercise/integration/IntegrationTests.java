@@ -41,6 +41,21 @@ public class IntegrationTests {
         //accountRepository.deleteAll();
     }
 
+    @Test
+    void shouldThrow_whenUserNotFound() {
+        RestTemplate restTemplate = new RestTemplate();
+        CreateAccountDto createAccountDto = CreateAccountDto.builder()
+                .accountType(AccountType.SAVING)
+                .userId(2L)
+                .build();
+
+        ResponseEntity<BankAccount> response = restTemplate.postForEntity(HTTP_LOCALHOST_8080_CREATE, new HttpEntity<>(createAccountDto), BankAccount.class);
+
+        assertAll(
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
+        );
+    }
+
 
     @Test
     void shouldCreateAccount() {
