@@ -56,6 +56,5 @@ public class IntegrationTests {
                 () -> assertThat(accounts).hasSize(1),
                 () -> assertThat(accounts.stream().findFirst().map(BankAccount::getType).orElseThrow()).isEqualTo(AccountType.SAVING)
         );
-
     }
 }
