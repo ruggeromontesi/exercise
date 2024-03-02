@@ -22,9 +22,7 @@ import java.util.Optional;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -34,7 +32,7 @@ import static org.mockito.Mockito.when;
 class AccountManagerTest {
     private static final String MISSING_ACCOUNT_TYPE = "Missing account type";
     private static final String MISSING_CURRENCY = "Missing currency";
-    private static final String USER_WITH_ID_S_WAS_NOT_FOUND = "User with id %s was not found.";
+    private static final String USER_WAS_NOT_FOUND = "User with id %s was not found.";
     @InjectMocks
     private AccountManager accountManager;
     @Mock
@@ -100,14 +98,9 @@ class AccountManagerTest {
                 .userId(USER_ID)
                 .currency(Currency.EUR)
                 .build();
-        BankUser bankUser = BankUser.builder()
-                .id(USER_ID)
-                .username(USERNAME)
-                .accounts(List.of())
-                .build();
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountDto));
-        assertThat(e.getMessage()).isEqualTo(String.format(USER_WITH_ID_S_WAS_NOT_FOUND, USER_ID));
+        assertThat(e.getMessage()).isEqualTo(String.format(USER_WAS_NOT_FOUND, USER_ID));
         verifyNoInteractions(accountRepository);
         verifyNoInteractions(transactionRepository);
     }
