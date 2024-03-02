@@ -11,6 +11,8 @@ import java.util.List;
 public class TestHelper {
     public static long USER_ID = 1001L;
     public static final String USERNAME = "TEST_USERNAME";
+    public static final long ACCOUNT_ID = 100001L;
+    public static  final double AMOUNT_1 = 100.0;
 
     public static List<Transaction> getTransactions() {
         BankUser user = BankUser.builder()

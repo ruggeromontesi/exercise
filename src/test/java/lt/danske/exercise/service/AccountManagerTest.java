@@ -2,9 +2,13 @@ package lt.danske.exercise.service;
 
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.controller.Currency;
+import lt.danske.exercise.controller.TransactionDto;
 import lt.danske.exercise.domain.AccountType;
+import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.BankUser;
+import lt.danske.exercise.domain.entity.Transaction;
+import lt.danske.exercise.exceptions.AccountNotFoundException;
 import lt.danske.exercise.exceptions.InvalidInputException;
 import lt.danske.exercise.exceptions.UserNotFoundException;
 import lt.danske.exercise.repository.AccountRepository;
@@ -12,6 +16,8 @@ import lt.danske.exercise.repository.TransactionRepository;
 import lt.danske.exercise.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,9 +25,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
+import static lt.danske.exercise.helper.TestHelper.AMOUNT_1;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +42,7 @@ class AccountManagerTest {
     private static final String MISSING_ACCOUNT_TYPE = "Missing account type";
     private static final String MISSING_CURRENCY = "Missing currency";
     private static final String USER_WAS_NOT_FOUND = "User with id %s was not found.";
+    private static final String ACCOUNT_WAS_NOT_FOUND = "Account with id %s was not found.";
     @InjectMocks
     private AccountManager accountManager;
     @Mock
@@ -41,6 +51,8 @@ class AccountManagerTest {
     private AccountRepository accountRepository;
     @Mock
     private TransactionRepository transactionRepository;
+    @Captor
+    private ArgumentCaptor<Transaction> transactionArgumentCaptor;
 
     @Test
     void should_createAccount_whenUserExist_and_currencyAndTypeAreProvided() {
@@ -106,7 +118,40 @@ class AccountManagerTest {
     }
 
     @Test
-    void executeTransaction() {
+    void should_executeTransaction_whenAccountExists() {
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountId(ACCOUNT_ID)
+                .amount(AMOUNT_1)
+                .type(TransactionType.DEPOSIT)
+                .build();
+        BankAccount account = BankAccount.builder()
+                .id(ACCOUNT_ID)
+                .currency(Currency.EUR)
+                .type(AccountType.SAVING)
+                .build();
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
+
+        accountManager.executeTransaction(transactionDto);
+
+        verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
+        Transaction capturedTransaction = transactionArgumentCaptor.getValue();
+        assertAll(
+                () -> assertThat(capturedTransaction.getBankAccount()).isEqualTo(account),
+                () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.DEPOSIT),
+                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_1)
+        );
+    }
+
+    @Test
+    void shouldThrowException_whenAccountDoesNotExist() {
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountId(ACCOUNT_ID)
+                .amount(AMOUNT_1)
+                .type(TransactionType.DEPOSIT)
+                .build();
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
+        Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.executeTransaction(transactionDto));
+        assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_WAS_NOT_FOUND, ACCOUNT_ID));
     }
 
     @Test
