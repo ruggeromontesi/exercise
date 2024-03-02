@@ -1,6 +1,8 @@
 package lt.danske.exercise.controller;
 
+import lt.danske.exercise.exceptions.AccountNotFoundException;
 import lt.danske.exercise.exceptions.FieldErrorResponse;
+import lt.danske.exercise.exceptions.InvalidInputException;
 import lt.danske.exercise.exceptions.UserNotFoundException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -37,7 +39,15 @@ public class RestControllerExceptionHandler {
         if (exception instanceof UserNotFoundException) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
+        if (exception instanceof AccountNotFoundException) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        }
 
-        throw exception;
+        if (exception instanceof InvalidInputException) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

@@ -2,7 +2,7 @@ package lt.danske.exercise.integration;
 
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.domain.AccountType;
-import lt.danske.exercise.domain.BankAccount;
+import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

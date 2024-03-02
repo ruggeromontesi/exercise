@@ -1,4 +1,4 @@
-package lt.danske.exercise.domain;
+package lt.danske.exercise.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
@@ -11,8 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lt.danske.exercise.domain.entity.BankAccount;
 
 import java.util.List;
 
@@ -29,7 +29,6 @@ public class BankUser {
     private String username;
     @OneToMany(mappedBy = "bankUser", fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     private List<BankAccount>  accounts;
-
-    //...
 }

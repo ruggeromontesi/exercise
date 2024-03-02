@@ -1,4 +1,4 @@
-package lt.danske.exercise.domain;
+package lt.danske.exercise.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
@@ -8,30 +8,34 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lt.danske.exercise.domain.TransactionType;
+import lt.danske.exercise.domain.entity.BankAccount;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
-@AllArgsConstructor
+@Data
 @Builder
 @NoArgsConstructor
-@Data
-public class BankAccount {
+@AllArgsConstructor
+@ToString
+public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bankuser_id")
-    private BankUser bankUser;
+    @JoinColumn(name = "bankAccount_id")
+    @JsonIgnore
+    private BankAccount bankAccount;
 
-    @OneToMany(mappedBy = "bankAccount", fetch = FetchType.LAZY)
-    private List<Transaction> transactions;
-
-    private AccountType type;
+    private TransactionType type;
+    private Double amount;
+    @Builder.Default
+    private LocalDateTime created = LocalDateTime.now();
 }
