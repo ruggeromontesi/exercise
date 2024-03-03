@@ -15,12 +15,13 @@ import lt.danske.exercise.repository.TransactionRepository;
 import lt.danske.exercise.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccountManager implements AccountManagementUseCase{
+public class AccountManager implements AccountManagementUseCase {
     public static final int COUNT_OF_MOST_RECENT_TRANSACTIONS = 10;
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
@@ -85,7 +86,8 @@ public class AccountManager implements AccountManagementUseCase{
     public List<Transaction> getRecentTransactions(long accountId) {
         getAccount(accountId);
         return transactionRepository.findByAccountId(accountId).stream()
-                .sorted(Comparator.comparingLong(Transaction::getId).reversed())
+                .sorted(Comparator.comparingLong((Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC)).reversed()
+                        .thenComparingLong(Transaction::getId).reversed())
                 .limit(COUNT_OF_MOST_RECENT_TRANSACTIONS)
                 .toList();
     }
