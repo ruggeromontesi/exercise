@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
-import static lt.danske.exercise.helper.TestHelper.AMOUNT_1;
+import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,7 +121,7 @@ class AccountManagerTest {
     void should_executeTransaction_whenAccountExists() {
         TransactionDto transactionDto = TransactionDto.builder()
                 .accountId(ACCOUNT_ID)
-                .amount(AMOUNT_1)
+                .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
         BankAccount account = BankAccount.builder()
@@ -138,7 +138,7 @@ class AccountManagerTest {
         assertAll(
                 () -> assertThat(capturedTransaction.getBankAccount()).isEqualTo(account),
                 () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.DEPOSIT),
-                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_1)
+                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT)
         );
     }
 
@@ -146,7 +146,7 @@ class AccountManagerTest {
     void shouldThrowException_whenAccountDoesNotExist() {
         TransactionDto transactionDto = TransactionDto.builder()
                 .accountId(ACCOUNT_ID)
-                .amount(AMOUNT_1)
+                .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
