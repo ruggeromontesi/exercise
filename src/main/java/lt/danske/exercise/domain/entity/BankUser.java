@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lt.danske.exercise.domain.entity.BankAccount;
 
 import java.util.List;
 
@@ -30,5 +29,5 @@ public class BankUser {
     @OneToMany(mappedBy = "bankUser", fetch = FetchType.LAZY)
     @JsonIgnore
     @ToString.Exclude
-    private List<BankAccount>  accounts;
+    private List<BankAccount> accounts;
 }
