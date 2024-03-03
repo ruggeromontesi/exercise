@@ -35,7 +35,7 @@ public class BankAccount {
     @JoinColumn(name = "bankuser_id")
     private BankUser bankUser;
 
-    @OneToMany(mappedBy = "bankAccount", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "bankAccount")
     @JsonIgnore
     @ToString.Exclude
     private List<Transaction> transactions;
