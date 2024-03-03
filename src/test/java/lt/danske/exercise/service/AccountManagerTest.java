@@ -4,6 +4,7 @@ import lt.danske.exercise.controller.BalanceDto;
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.controller.Currency;
 import lt.danske.exercise.controller.TransactionDto;
+import lt.danske.exercise.controller.TransactionStatus;
 import lt.danske.exercise.domain.AccountType;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;
@@ -32,7 +33,9 @@ import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
-import static lt.danske.exercise.helper.TestHelper.getTransactions;
+import static lt.danske.exercise.helper.TestHelper.getDeposit;
+import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
+import static lt.danske.exercise.helper.TestHelper.getSuccessfulAndUnsuccessfulTransactions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -78,7 +81,7 @@ class AccountManagerTest {
                 .build();
 
         accountManager.createAccount(createAccountDto);
-        verify(accountRepository, times(1)).save(createdBankAccount);
+        verify(accountRepository, times(1)).saveAndFlush(createdBankAccount);
     }
 
     @Test
@@ -122,7 +125,7 @@ class AccountManagerTest {
     }
 
     @Test
-    void should_executeTransaction_whenAccountExists() {
+    void should_executeTransaction_whenAccountExists_andBalanceIsEnough() {
         TransactionDto transactionDto = TransactionDto.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(AMOUNT_DEPOSIT)
@@ -142,7 +145,29 @@ class AccountManagerTest {
         assertAll(
                 () -> assertThat(capturedTransaction.getBankAccount()).isEqualTo(account),
                 () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.DEPOSIT),
-                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT)
+                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT),
+                () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.SUCCESS)
+        );
+    }
+
+    @Test
+    void shouldNot_executeTransaction_whenAccountExists_andBalanceIsNotEnough() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(List.of(getDeposit(0.5 * AMOUNT_DEPOSIT)));
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountId(ACCOUNT_ID)
+                .amount(2 * AMOUNT_WITHDRAWAL)
+                .type(TransactionType.WITHDRAW)
+                .build();
+
+        accountManager.executeTransaction(transactionDto);
+
+        verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
+        Transaction capturedTransaction = transactionArgumentCaptor.getValue();
+        assertAll(
+                () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.WITHDRAW),
+                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(2 * AMOUNT_WITHDRAWAL),
+                () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
         );
     }
 
@@ -161,13 +186,27 @@ class AccountManagerTest {
     @Test
     void should_getBalance_whenAccountExists() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
-        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getTransactions(21));
+        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
 
         BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
         assertThat(balance).satisfies(
                 b -> assertThat(b.getAmount()).isEqualTo(20 * AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
                 b -> assertThat(b.getCurrency()).isEqualTo(Currency.EUR)
         );
+    }
+
+    @Test
+    void should_getBalance_andIgnoreFailedTransactions_whenAccountExists() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getSuccessfulAndUnsuccessfulTransactions());
+
+        BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
+
+        assertThat(balance).satisfies(
+                b -> assertThat(b.getAmount()).isEqualTo(AMOUNT_DEPOSIT),
+                b -> assertThat(b.getCurrency()).isEqualTo(Currency.EUR)
+        );
+
     }
 
     @Test
@@ -180,7 +219,7 @@ class AccountManagerTest {
     @Test
     void getRecentTransactions() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
-        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getTransactions(21));
+        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
         List<Transaction> transactions = accountManager.getRecentTransactions(ACCOUNT_ID);
         Transaction lastTransaction = transactions.stream().findFirst().orElseThrow();
         assertAll(

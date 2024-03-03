@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,16 +26,14 @@ public class AccountController {
     }
 
     @PostMapping(value = "/performtransaction")
-    public ResponseEntity<String> executeTransaction(@RequestBody TransactionDto transaction) {
-        accountManager.executeTransaction(transaction);
-        String str = "http://localhost:8080/transactions/" + transaction.getAccountId();
-
-        return ResponseEntity.created(URI.create(str)).body(str);
+    public ResponseEntity<Transaction> executeTransaction(@RequestBody TransactionDto transaction) {
+        Transaction a = accountManager.executeTransaction(transaction);
+        return ResponseEntity.ok(a);
     }
 
     @GetMapping("/balance/{accountId}")
     public ResponseEntity<BalanceDto> getBalance(@PathVariable("accountId") long accountId) {
-        BalanceDto balance  = accountManager.getBalance(accountId);
+        BalanceDto balance = accountManager.getBalance(accountId);
         return ResponseEntity.ok(balance);
     }
 

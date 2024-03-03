@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AccountManagementUseCase {
     BankAccount createAccount(CreateAccountDto accountDto);
-    void executeTransaction(TransactionDto transactionDto);
+    Transaction executeTransaction(TransactionDto transactionDto);
     BalanceDto getBalance(long accountId);
     List<Transaction> getRecentTransactions(long accountId);
 }

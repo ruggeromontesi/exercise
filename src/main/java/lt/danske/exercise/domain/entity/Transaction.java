@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lt.danske.exercise.controller.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 
 import java.time.LocalDateTime;
@@ -37,4 +38,5 @@ public class Transaction {
     private Double amount;
     @Builder.Default
     private LocalDateTime created = LocalDateTime.now();
+    private TransactionStatus status;
 }

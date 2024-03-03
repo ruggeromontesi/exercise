@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.controller.BalanceDto;
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.controller.TransactionDto;
+import lt.danske.exercise.controller.TransactionStatus;
+import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.BankUser;
 import lt.danske.exercise.domain.entity.Transaction;
@@ -36,7 +38,7 @@ public class AccountManager implements AccountManagementUseCase {
                 .currency(accountDto.getCurrency())
                 .build();
 
-        return accountRepository.save(account);
+        return accountRepository.saveAndFlush(account);
     }
 
     private BankUser getBankUser(long userId) {
@@ -54,15 +56,16 @@ public class AccountManager implements AccountManagementUseCase {
         }
     }
 
-    public void executeTransaction(TransactionDto transactionDto) {
+    public Transaction executeTransaction(TransactionDto transactionDto) {
         BankAccount account = getAccount(transactionDto.getAccountId());
 
         Transaction transaction = Transaction.builder()
                 .bankAccount(account)
                 .type(transactionDto.getType())
                 .amount(transactionDto.getAmount())
+                .status(getTransactionStatus(transactionDto))
                 .build();
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     private BankAccount getAccount(Long accountId) {
@@ -70,17 +73,30 @@ public class AccountManager implements AccountManagementUseCase {
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
+    private TransactionStatus getTransactionStatus(TransactionDto transactionDto) {
+
+        if(transactionDto.getType() == TransactionType.WITHDRAW && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount()) {
+            return TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE;
+        }
+        return TransactionStatus.SUCCESS;
+    }
+
     public BalanceDto getBalance(long accountId) {
         BankAccount account = getAccount(accountId);
-        List<Transaction> transactions = transactionRepository.findByAccountId(accountId);
-        double amount = transactions.stream()
-                .mapToDouble(t -> t.getAmount() * t.getType().getMultiplier())
-                .sum();
+        double amount = getBalanceAmount(accountId);
 
         return BalanceDto.builder()
                 .amount(amount)
                 .currency(account.getCurrency())
                 .build();
+    }
+
+    private double getBalanceAmount(long accountId) {
+        List<Transaction> transactions = transactionRepository.findByAccountId(accountId);
+        return transactions.stream()
+                .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
+                .mapToDouble(t -> t.getAmount() * t.getType().getMultiplier())
+                .sum();
     }
 
     public List<Transaction> getRecentTransactions(long accountId) {
