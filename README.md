@@ -1,4 +1,10 @@
 # exercise
+# how to set it up
+git clone https://github.com/ruggeromontesi/exercise.git
+cd ./exercise
+mvn clean package
+mvn spring-boot:run
+@pause
 
 # how to create bank account
 curl -X 'POST' 'http://localhost:8080/create' -H "Content-Type: application/json" -d '{ "userId": 1, "accountType": "SAVING"}'
