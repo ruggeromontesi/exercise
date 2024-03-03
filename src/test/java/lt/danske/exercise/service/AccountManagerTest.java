@@ -1,5 +1,6 @@
 package lt.danske.exercise.service;
 
+import lt.danske.exercise.controller.BalanceDto;
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.controller.Currency;
 import lt.danske.exercise.controller.TransactionDto;
@@ -27,8 +28,11 @@ import java.util.Optional;
 
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
+import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
+import static lt.danske.exercise.helper.TestHelper.getAccount;
+import static lt.danske.exercise.helper.TestHelper.getTransactions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -155,10 +159,33 @@ class AccountManagerTest {
     }
 
     @Test
-    void getBalance() {
+    void should_getBalance_whenAccountExists() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getTransactions(21));
+
+        BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
+        assertThat(balance).satisfies(
+                b -> assertThat(b.getAmount()).isEqualTo(20 * AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
+                b -> assertThat(b.getCurrency()).isEqualTo(Currency.EUR)
+        );
+    }
+
+    @Test
+    void shouldThrow_whenAccountDoesNotExist() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
+        Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.getBalance(ACCOUNT_ID));
+        assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_WAS_NOT_FOUND, ACCOUNT_ID));
     }
 
     @Test
     void getRecentTransactions() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getTransactions(21));
+        List<Transaction> transactions = accountManager.getRecentTransactions(ACCOUNT_ID);
+        Transaction lastTransaction = transactions.stream().findFirst().orElseThrow();
+        assertAll(
+                () -> assertThat(transactions).hasSize(AccountManager.COUNT_OF_MOST_RECENT_TRANSACTIONS),
+                () -> assertThat(lastTransaction.getType()).isEqualTo(TransactionType.WITHDRAW)
+        );
     }
 }

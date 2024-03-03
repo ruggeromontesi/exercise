@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AccountManager implements AccountManagementUseCase{
-    private static final int COUNT_OF_MOST_RECENT_TRANSACTIONS = 10;
+    public static final int COUNT_OF_MOST_RECENT_TRANSACTIONS = 10;
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
