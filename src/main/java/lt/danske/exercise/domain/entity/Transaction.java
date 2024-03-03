@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.entity.BankAccount;
 
 import java.time.LocalDateTime;
 
