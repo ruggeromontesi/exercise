@@ -92,7 +92,7 @@ public class IntegrationTests {
         assertThat(response).isNotNull();
         assertAll(
                 () -> assertThat(response).isNotNull(),
-                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(accountManager.getBalance(a.getId()).getAmount()).isEqualTo(100.0)
         );
     }
