@@ -3,9 +3,11 @@ package lt.danske.exercise.integration;
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.controller.Currency;
 import lt.danske.exercise.controller.TransactionDto;
+import lt.danske.exercise.controller.TransactionStatus;
 import lt.danske.exercise.domain.AccountType;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;
+import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.TransactionRepository;
 import lt.danske.exercise.service.AccountManager;
@@ -22,7 +24,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Objects;
 
+import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
+import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -80,20 +85,70 @@ public class IntegrationTests {
     }
 
     @Test
-    void should_performTransaction() {
-        var a = accountManager.createAccount(getAccountDto());
+    void should_performDeposit() {
+        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         TransactionDto transactionDto = TransactionDto.builder()
-                .accountId(a.getId())
+                .accountId(createdAccount.getId())
                 .type(TransactionType.DEPOSIT)
-                .amount(100.0)
+                .amount(AMOUNT_DEPOSIT)
                 .build();
-        ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), String.class);
-        assertThat(response).isNotNull();
+        ResponseEntity<Transaction> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(accountManager.getBalance(a.getId()).getAmount()).isEqualTo(100.0)
+                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(100.0),
+                () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.SUCCESS)
+        );
+    }
+
+    @Test
+    void should_notPerformWithdrawal_whenBalanceNotEnough() {
+        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        RestTemplate restTemplate = new RestTemplate();
+        Transaction transaction = Transaction.builder()
+                .bankAccount(createdAccount)
+                .amount(AMOUNT_DEPOSIT)
+                .type(TransactionType.DEPOSIT)
+                .status(TransactionStatus.SUCCESS)
+                .build();
+        transactionRepository.saveAndFlush(transaction);
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.WITHDRAW)
+                .amount(10 * AMOUNT_WITHDRAWAL)
+                .build();
+        ResponseEntity<Transaction> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), Transaction.class);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(100.0),
+                () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
+        );
+    }
+
+    @Test
+    void should_performWithdrawal_whenBalanceIsEnough() {
+        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        RestTemplate restTemplate = new RestTemplate();
+        Transaction transaction = Transaction.builder()
+                .bankAccount(createdAccount)
+                .amount(AMOUNT_DEPOSIT)
+                .type(TransactionType.DEPOSIT)
+                .status(TransactionStatus.SUCCESS)
+                .build();
+        transactionRepository.saveAndFlush(transaction);
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.WITHDRAW)
+                .amount(AMOUNT_WITHDRAWAL)
+                .build();
+        ResponseEntity<Transaction> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), Transaction.class);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
+                () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
     }
 }
