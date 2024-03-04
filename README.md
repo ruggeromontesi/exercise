@@ -23,3 +23,12 @@ available at http://localhost:8080/h2-console
 
 # Sonarcloud report
 https://sonarcloud.io/summary/new_code?id=ruggeromontesi_exercise&branch=master
+
+# How will you design/organize the micro services for your API product?
+
+# How will you break down the business requirements into user stories?
+* 1 As a user, I would like to create a saving account for the customer, knowing his id, specifying account type (SAVING, CURRENT) and the currency (EUR).
+* 2 As a user, I would like to perform deposit and withdrawal to/from a certain account, knowing the id of the account and  specifying the type of operation and the relevant amount. For the saving account 
+   is not foreseen overdraft, i.e.: if the amount of withdrawal is bigger than the available  balance the transaction should fail, but still should be kept track of it.
+* 3 As a user, I would like to read the available balance for a certain account, given the account id.
+* 4 As a user, I would like to have the list of last 10 transactions given a the id of the account.
