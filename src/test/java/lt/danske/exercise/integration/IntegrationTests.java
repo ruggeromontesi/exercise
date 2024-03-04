@@ -220,7 +220,7 @@ public class IntegrationTests {
                 LOCALHOST_8080 + ROOT + TRANSACTIONS_ACCOUNT_ID,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<Transaction>>() {
+                new ParameterizedTypeReference<>() {
                 },
                 createdAccount.getId()
         );
