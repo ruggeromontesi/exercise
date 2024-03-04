@@ -1,10 +1,10 @@
 package lt.danske.exercise.service;
 
-import lt.danske.exercise.controller.BalanceDto;
-import lt.danske.exercise.controller.CreateAccountDto;
-import lt.danske.exercise.controller.Currency;
-import lt.danske.exercise.controller.TransactionDto;
-import lt.danske.exercise.controller.TransactionStatus;
+import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.Currency;
+import lt.danske.exercise.domain.dto.TransactionDto;
+import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.AccountType;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;

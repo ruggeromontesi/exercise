@@ -1,4 +1,4 @@
-package lt.danske.exercise.controller;
+package lt.danske.exercise.domain;
 
 public enum TransactionStatus {
     SUCCESS,

@@ -1,7 +1,7 @@
 package lt.danske.exercise.helper;
 
-import lt.danske.exercise.controller.Currency;
-import lt.danske.exercise.controller.TransactionStatus;
+import lt.danske.exercise.domain.Currency;
+import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.AccountType;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;

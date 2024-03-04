@@ -1,11 +1,11 @@
-package lt.danske.exercise.controller;
+package lt.danske.exercise.domain;
 
 import lombok.Getter;
 
 @Getter
 public enum Currency {
     EUR("€");
-    private String symbol;
+    private final String symbol;
     Currency(String symbol) {
         this.symbol = symbol;
     }

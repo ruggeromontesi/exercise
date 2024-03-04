@@ -1,8 +1,8 @@
 package lt.danske.exercise.service;
 
-import lt.danske.exercise.controller.BalanceDto;
-import lt.danske.exercise.controller.CreateAccountDto;
-import lt.danske.exercise.controller.TransactionDto;
+import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.TransactionDto;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.Transaction;
 

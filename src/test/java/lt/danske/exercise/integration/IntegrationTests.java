@@ -1,12 +1,12 @@
 package lt.danske.exercise.integration;
 
-import lt.danske.exercise.controller.BalanceDto;
-import lt.danske.exercise.controller.CreateAccountDto;
-import lt.danske.exercise.controller.Currency;
-import lt.danske.exercise.controller.TransactionDto;
-import lt.danske.exercise.controller.TransactionStatus;
 import lt.danske.exercise.domain.AccountType;
+import lt.danske.exercise.domain.Currency;
+import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
+import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.TransactionDto;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.repository.AccountRepository;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ import static lt.danske.exercise.controller.AccountController.BALANCE_ACCOUNT_ID
 import static lt.danske.exercise.controller.AccountController.CREATE;
 import static lt.danske.exercise.controller.AccountController.DO_TRANSACTION;
 import static lt.danske.exercise.controller.AccountController.ROOT;
+import static lt.danske.exercise.controller.AccountController.TRANSACTIONS_ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -194,5 +196,40 @@ public class IntegrationTests {
                 () -> assertThat(response.getBody()).isNotNull(),
                 () -> assertThat(Objects.requireNonNull(response.getBody()).getAmount()).isEqualTo(TIMES * AMOUNT_DEPOSIT)
         );
+    }
+
+    @Test
+    void should_getTransactions() {
+        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        RestTemplate restTemplate = new RestTemplate();
+        TransactionDto deposit = TransactionDto.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.DEPOSIT)
+                .amount(AMOUNT_DEPOSIT)
+                .build();
+
+        IntStream.range(0, TIMES).forEach(i -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
+                new HttpEntity<>(deposit), Transaction.class));
+        TransactionDto failingWithdrawal = TransactionDto.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.WITHDRAW)
+                .amount(AMOUNT_WITHDRAWAL)
+                .build();
+        restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(failingWithdrawal), Transaction.class);
+        ResponseEntity<List<Transaction>> response = restTemplate.exchange(
+                LOCALHOST_8080 + ROOT + TRANSACTIONS_ACCOUNT_ID,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<Transaction>>() {
+                },
+                createdAccount.getId()
+        );
+
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(response.getBody().stream().findFirst().orElseThrow().getType()).isEqualTo(TransactionType.WITHDRAW)
+        );
+
     }
 }

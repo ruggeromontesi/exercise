@@ -2,6 +2,9 @@ package lt.danske.exercise.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.TransactionDto;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.service.AccountManagementUseCase;
@@ -23,6 +26,7 @@ public class AccountController {
     public static final String CREATE = "/create";
     public static final String DO_TRANSACTION = "/performtransaction";
     public static final String BALANCE_ACCOUNT_ID = "/balance/{accountId}";
+    public static final String TRANSACTIONS_ACCOUNT_ID = "/transactions/{accountId}";
     private final AccountManagementUseCase accountManager;
 
     @PostMapping(value = CREATE)
@@ -43,7 +47,7 @@ public class AccountController {
         return ResponseEntity.ok(balance);
     }
 
-    @GetMapping("/transactions/{accountId}")
+    @GetMapping(TRANSACTIONS_ACCOUNT_ID)
     public ResponseEntity<List<Transaction>> getLastTenTransactions(@PathVariable("accountId") long accountId) {
         List<Transaction> transactions = accountManager.getRecentTransactions(accountId);
         return ResponseEntity.ok(transactions);

@@ -1,4 +1,4 @@
-package lt.danske.exercise.controller;
+package lt.danske.exercise.domain.dto;
 
 import lombok.Builder;
 import lombok.Value;
