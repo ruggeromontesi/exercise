@@ -7,7 +7,7 @@
 * @pause
 
 # how to create bank account
-curl -X 'POST' 'http://localhost:8080/account/management/create' -H "Content-Type: application/json" -d '{ "userId": 1, "accountType": "SAVING"}'
+curl -X 'POST' 'http://localhost:8080/account/management/create' -H "Content-Type: application/json" -d '{ "userId": 1, "currency" : "EUR", "accountType": "SAVING"}'
 
 # how to deposit money
 curl -X 'POST' 'http://localhost:8080/performtransaction' -H "Content-Type: application/json" -d '{ "accountId": 1, "type": "DEPOSIT", "amount": 200}'
