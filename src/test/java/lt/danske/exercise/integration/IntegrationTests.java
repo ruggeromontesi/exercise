@@ -120,13 +120,14 @@ public class IntegrationTests {
     void should_notPerformTransactionWhenAmountNegative() {
         BankAccount createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
-        RequestTransaction transactionDto = RequestTransaction.builder()
+        RequestTransaction transaction = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.DEPOSIT)
                 .amount(-1 * AMOUNT_DEPOSIT)
                 .build();
+        HttpEntity<RequestTransaction> httpEntity = new HttpEntity<>(transaction);
         assertThrows(HttpClientErrorException.class, () -> restTemplate.exchange(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
-                HttpMethod.POST, new HttpEntity<>(transactionDto), Transaction.class));
+                HttpMethod.POST, httpEntity, Transaction.class));
 
     }
 
