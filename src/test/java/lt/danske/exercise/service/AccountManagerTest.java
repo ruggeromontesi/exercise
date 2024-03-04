@@ -34,7 +34,6 @@ import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
-import static lt.danske.exercise.helper.TestHelper.getAccount;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
 import static lt.danske.exercise.helper.TestHelper.getSuccessfulAndUnsuccessfulTransactions;
@@ -126,19 +125,15 @@ class AccountManagerTest {
 
     @Test
     void should_executeTransaction_whenAccountExists_andBalanceIsEnough() {
-        RequestTransaction transactionDto = RequestTransaction.builder()
+        RequestTransaction transaction = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
-        BankAccount account = BankAccount.builder()
-                .id(ACCOUNT_ID)
-                .currency(Currency.EUR)
-                .type(AccountType.SAVING)
-                .build();
+        BankAccount account = getAccount();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
-        accountManager.executeTransaction(transactionDto);
+        accountManager.executeTransaction(transaction);
 
         verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
         Transaction capturedTransaction = transactionArgumentCaptor.getValue();
@@ -148,6 +143,14 @@ class AccountManagerTest {
                 () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT),
                 () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
+    }
+
+    private static BankAccount getAccount() {
+        return BankAccount.builder()
+                .id(ACCOUNT_ID)
+                .currency(Currency.EUR)
+                .type(AccountType.SAVING)
+                .build();
     }
 
     @Test
@@ -173,14 +176,25 @@ class AccountManagerTest {
 
     @Test
     void shouldThrowException_whenAccountDoesNotExist() {
-        RequestTransaction transactionDto = RequestTransaction.builder()
+        RequestTransaction transaction = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
-        Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.executeTransaction(transactionDto));
+        Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.executeTransaction(transaction));
         assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_NOT_FOUND, ACCOUNT_ID));
+    }
+
+    @Test
+    void shouldThrow_whenAmountNegative() {
+        RequestTransaction transaction = RequestTransaction.builder()
+                .accountId(ACCOUNT_ID)
+                .amount(-1 * AMOUNT_DEPOSIT)
+                .type(TransactionType.DEPOSIT)
+                .build();
+        Exception e = assertThrows(InvalidInputException.class, () -> accountManager.executeTransaction(transaction));
+        assertThat(e.getMessage()).isEqualTo(AccountManager.AMOUNT_MUST_BE_POSITIVE);
     }
 
     @Test

@@ -117,6 +117,20 @@ public class IntegrationTests {
     }
 
     @Test
+    void should_notPerformTransactionWhenAmountNegative() {
+        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        RestTemplate restTemplate = new RestTemplate();
+        RequestTransaction transactionDto = RequestTransaction.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.DEPOSIT)
+                .amount(-1 * AMOUNT_DEPOSIT)
+                .build();
+        assertThrows(HttpClientErrorException.class, () -> restTemplate.exchange(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
+                HttpMethod.POST, new HttpEntity<>(transactionDto), Transaction.class));
+
+    }
+
+    @Test
     void should_notPerformWithdrawal_whenBalanceNotEnough() {
         BankAccount createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
