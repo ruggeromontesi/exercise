@@ -228,7 +228,7 @@ public class IntegrationTests {
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(response.getBody().stream().findFirst().orElseThrow().getType()).isEqualTo(TransactionType.WITHDRAW)
+                () -> assertThat(response.getBody().get(0).getType()).isEqualTo(TransactionType.WITHDRAW)
         );
 
     }
