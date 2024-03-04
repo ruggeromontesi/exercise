@@ -20,3 +20,6 @@ curl -X 'GET' 'http://localhost:8080/balance/1' -H "Content-Type: application/js
 
 # h2 console
 available at http://localhost:8080/h2-console
+
+# Sonarcloud report
+https://sonarcloud.io/project/issues?resolved=false&sinceLeakPeriod=true&id=ruggeromontesi_exercise
