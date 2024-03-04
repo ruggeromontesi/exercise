@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    @Query(value = "SELECT * FROM TRANSACTION WHERE BANK_ACCOUNT_ID = :accountId", nativeQuery = true)
+    @Query(value = "SELECT * FROM TRANSACTION WHERE ACCOUNT_ID = :accountId", nativeQuery = true)
     List<Transaction> findByAccountId(@Param("accountId") Long accountId);
 }

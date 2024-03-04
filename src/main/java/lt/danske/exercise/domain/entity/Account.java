@@ -30,11 +30,9 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-
     @OneToMany(mappedBy = "account")
     @JsonIgnore
     @ToString.Exclude
