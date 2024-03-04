@@ -22,4 +22,4 @@ curl -X 'GET' 'http://localhost:8080/account/management/balance/1' -H "Content-T
 available at http://localhost:8080/h2-console
 
 # Sonarcloud report
-https://sonarcloud.io/project/issues?resolved=false&sinceLeakPeriod=true&id=ruggeromontesi_exercise
+https://sonarcloud.io/summary/new_code?id=ruggeromontesi_exercise&branch=master
