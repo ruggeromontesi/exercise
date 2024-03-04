@@ -64,9 +64,10 @@ public class IntegrationTests {
                 .accountType(AccountType.SAVING)
                 .userId(2L)
                 .build();
+        HttpEntity<CreateAccountDto> httpEntity = new HttpEntity<>(createAccountDto);
 
         assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
-                new HttpEntity<>(createAccountDto), BankAccount.class));
+                httpEntity, BankAccount.class));
     }
 
     @Test
@@ -182,10 +183,10 @@ public class IntegrationTests {
         TransactionDto failingWithdrawal = TransactionDto.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
-                .amount((TIMES + 1) * AMOUNT_DEPOSIT )
+                .amount((TIMES + 1) * AMOUNT_DEPOSIT)
                 .build();
         restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(failingWithdrawal), Transaction.class);
-        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + BALANCE_ACCOUNT_ID ,
+        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + BALANCE_ACCOUNT_ID,
                 HttpMethod.GET, new HttpEntity<>(null), BalanceDto.class, createdAccount.getId());
         assertAll(
                 () -> assertThat(response).isNotNull(),
