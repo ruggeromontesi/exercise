@@ -1,12 +1,14 @@
 package lt.danske.exercise.controller;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
 @Builder
 @Value
 public class BalanceDto {
-    double amount;
+    @NonNull
+    Double amount;
     Currency currency;
 
     @Override

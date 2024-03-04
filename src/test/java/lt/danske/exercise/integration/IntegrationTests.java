@@ -1,5 +1,6 @@
 package lt.danske.exercise.integration;
 
+import lt.danske.exercise.controller.BalanceDto;
 import lt.danske.exercise.controller.CreateAccountDto;
 import lt.danske.exercise.controller.Currency;
 import lt.danske.exercise.controller.TransactionDto;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,7 +27,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
+import static lt.danske.exercise.controller.AccountController.BALANCE_ACCOUNT_ID;
+import static lt.danske.exercise.controller.AccountController.CREATE;
+import static lt.danske.exercise.controller.AccountController.DO_TRANSACTION;
+import static lt.danske.exercise.controller.AccountController.ROOT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class IntegrationTests {
-    private static final String HTTP_LOCALHOST_8080_CREATE = "http://localhost:8080/create";
+    private static final String LOCALHOST_8080 = "http://localhost:8080";
+    private static final int TIMES = 5;
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
@@ -57,7 +65,7 @@ public class IntegrationTests {
                 .userId(2L)
                 .build();
 
-        assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(HTTP_LOCALHOST_8080_CREATE, new HttpEntity<>(createAccountDto), BankAccount.class));
+        assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE, new HttpEntity<>(createAccountDto), BankAccount.class));
     }
 
     @Test
@@ -65,7 +73,7 @@ public class IntegrationTests {
         RestTemplate restTemplate = new RestTemplate();
         CreateAccountDto createAccountDto = getAccountDto();
 
-        ResponseEntity<BankAccount> response = restTemplate.postForEntity(HTTP_LOCALHOST_8080_CREATE, new HttpEntity<>(createAccountDto), BankAccount.class);
+        ResponseEntity<BankAccount> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE, new HttpEntity<>(createAccountDto), BankAccount.class);
         List<BankAccount> accounts = accountRepository.findByUserId(1L);
 
         assertAll(
@@ -93,7 +101,7 @@ public class IntegrationTests {
                 .type(TransactionType.DEPOSIT)
                 .amount(AMOUNT_DEPOSIT)
                 .build();
-        ResponseEntity<Transaction> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), Transaction.class);
+        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(transactionDto), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -118,7 +126,7 @@ public class IntegrationTests {
                 .type(TransactionType.WITHDRAW)
                 .amount(10 * AMOUNT_WITHDRAWAL)
                 .build();
-        ResponseEntity<Transaction> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), Transaction.class);
+        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(transactionDto), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -143,12 +151,38 @@ public class IntegrationTests {
                 .type(TransactionType.WITHDRAW)
                 .amount(AMOUNT_WITHDRAWAL)
                 .build();
-        ResponseEntity<Transaction> response = restTemplate.postForEntity("http://localhost:8080/performtransaction", new HttpEntity<>(transactionDto), Transaction.class);
+        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(transactionDto), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
                 () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.SUCCESS)
+        );
+    }
+
+    @Test
+    void should_getBalance() {
+        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        RestTemplate restTemplate = new RestTemplate();
+        TransactionDto deposit = TransactionDto.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.DEPOSIT)
+                .amount(AMOUNT_DEPOSIT)
+                .build();
+
+        IntStream.range(0, TIMES).forEach(i -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(deposit), Transaction.class));
+        TransactionDto withdrawal = TransactionDto.builder()
+                .accountId(createdAccount.getId())
+                .type(TransactionType.WITHDRAW)
+                .amount(10 * AMOUNT_DEPOSIT )
+                .build();
+        restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(withdrawal), Transaction.class);
+        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + BALANCE_ACCOUNT_ID , HttpMethod.GET, new HttpEntity<>(null), BalanceDto.class, createdAccount.getId());
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(response.getBody()).isNotNull(),
+                () -> assertThat(response.getBody().getAmount()).isEqualTo(TIMES * AMOUNT_DEPOSIT)
         );
     }
 }
