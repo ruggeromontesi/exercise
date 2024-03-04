@@ -30,9 +30,9 @@ public class Transaction {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bankAccount_id")
+    @JoinColumn(name = "account_id")
     @JsonIgnore
-    private BankAccount bankAccount;
+    private Account account;
 
     private TransactionType type;
     private Double amount;

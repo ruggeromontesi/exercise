@@ -7,7 +7,7 @@ import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
 import lt.danske.exercise.domain.dto.RequestTransaction;
-import lt.danske.exercise.domain.entity.BankAccount;
+import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.TransactionRepository;
@@ -69,7 +69,7 @@ public class IntegrationTests {
         HttpEntity<CreateAccountDto> httpEntity = new HttpEntity<>(createAccountDto);
 
         assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
-                httpEntity, BankAccount.class));
+                httpEntity, Account.class));
     }
 
     @Test
@@ -77,15 +77,15 @@ public class IntegrationTests {
         RestTemplate restTemplate = new RestTemplate();
         CreateAccountDto createAccountDto = getAccountDto();
 
-        ResponseEntity<BankAccount> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
-                new HttpEntity<>(createAccountDto), BankAccount.class);
-        List<BankAccount> accounts = accountRepository.findByUserId(1L);
+        ResponseEntity<Account> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
+                new HttpEntity<>(createAccountDto), Account.class);
+        List<Account> accounts = accountRepository.findByUserId(1L);
 
         assertAll(
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(response.getBody()).isNotNull(),
                 () -> assertThat(accounts).hasSize(1),
-                () -> assertThat(accounts.stream().findFirst().map(BankAccount::getType).orElseThrow()).isEqualTo(AccountType.SAVING)
+                () -> assertThat(accounts.stream().findFirst().map(Account::getType).orElseThrow()).isEqualTo(AccountType.SAVING)
         );
     }
 
@@ -99,7 +99,7 @@ public class IntegrationTests {
 
     @Test
     void should_performDeposit() {
-        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        Account createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
@@ -118,7 +118,7 @@ public class IntegrationTests {
 
     @Test
     void should_notPerformTransactionWhenAmountNegative() {
-        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        Account createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         RequestTransaction transaction = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
@@ -133,10 +133,10 @@ public class IntegrationTests {
 
     @Test
     void should_notPerformWithdrawal_whenBalanceNotEnough() {
-        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        Account createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         Transaction transaction = Transaction.builder()
-                .bankAccount(createdAccount)
+                .account(createdAccount)
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .status(TransactionStatus.SUCCESS)
@@ -160,10 +160,10 @@ public class IntegrationTests {
 
     @Test
     void should_performWithdrawal_whenBalanceIsEnough() {
-        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        Account createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         Transaction transaction = Transaction.builder()
-                .bankAccount(createdAccount)
+                .account(createdAccount)
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .status(TransactionStatus.SUCCESS)
@@ -187,7 +187,7 @@ public class IntegrationTests {
 
     @Test
     void should_getBalance() {
-        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        Account createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         RequestTransaction deposit = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
@@ -215,7 +215,7 @@ public class IntegrationTests {
 
     @Test
     void should_getTransactions() {
-        BankAccount createdAccount = accountManager.createAccount(getAccountDto());
+        Account createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
         RequestTransaction deposit = RequestTransaction.builder()
                 .accountId(createdAccount.getId())

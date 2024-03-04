@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
 import lt.danske.exercise.domain.dto.RequestTransaction;
-import lt.danske.exercise.domain.entity.BankAccount;
+import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.service.AccountManagementUseCase;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +30,8 @@ public class AccountController {
     private final AccountManagementUseCase accountManager;
 
     @PostMapping(value = CREATE)
-    public ResponseEntity<BankAccount> createAccount(@RequestBody @Valid CreateAccountDto account) {
-        BankAccount createdAccount = accountManager.createAccount(account);
+    public ResponseEntity<Account> createAccount(@RequestBody @Valid CreateAccountDto account) {
+        Account createdAccount = accountManager.createAccount(account);
         return ResponseEntity.ok().body(createdAccount);
     }
 

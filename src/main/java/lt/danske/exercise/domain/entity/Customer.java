@@ -21,13 +21,13 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @ToString
-public class BankUser {
+public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String username;
-    @OneToMany(mappedBy = "bankUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     @JsonIgnore
     @ToString.Exclude
-    private List<BankAccount> accounts;
+    private List<Account> accounts;
 }

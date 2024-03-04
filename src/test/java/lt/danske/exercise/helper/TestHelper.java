@@ -4,8 +4,8 @@ import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.AccountType;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.entity.BankAccount;
-import lt.danske.exercise.domain.entity.BankUser;
+import lt.danske.exercise.domain.entity.Account;
+import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ public class TestHelper {
     public static Transaction getWithdrawal(double amountWithdrawal, TransactionStatus status) {
         return Transaction.builder()
                 .id(i++)
-                .bankAccount(getAccount())
+                .account(getAccount())
                 .type(TransactionType.WITHDRAW)
                 .amount(amountWithdrawal)
                 .status(status)
@@ -40,23 +40,23 @@ public class TestHelper {
     public static Transaction getDeposit(double amountDeposit) {
         return Transaction.builder()
                 .id(i++)
-                .bankAccount(getAccount())
+                .account(getAccount())
                 .type(TransactionType.DEPOSIT)
                 .amount(amountDeposit)
                 .status(TransactionStatus.SUCCESS)
                 .build();
     }
 
-    public static BankAccount getAccount() {
-        return BankAccount.builder()
-                .bankUser(getUser())
+    public static Account getAccount() {
+        return Account.builder()
+                .customer(getUser())
                 .type(AccountType.SAVING)
                 .currency(Currency.EUR)
                 .build();
     }
 
-    public static BankUser getUser() {
-        return BankUser.builder()
+    public static Customer getUser() {
+        return Customer.builder()
                 .id(USER_ID)
                 .username(USERNAME)
                 .accounts(List.of())

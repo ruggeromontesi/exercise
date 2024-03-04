@@ -7,8 +7,8 @@ import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
 import lt.danske.exercise.domain.dto.RequestTransaction;
-import lt.danske.exercise.domain.entity.BankAccount;
-import lt.danske.exercise.domain.entity.BankUser;
+import lt.danske.exercise.domain.entity.Account;
+import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.exceptions.AccountNotFoundException;
 import lt.danske.exercise.exceptions.InvalidInputException;
@@ -67,20 +67,20 @@ class AccountManagerTest {
                 .userId(USER_ID)
                 .currency(Currency.EUR)
                 .build();
-        BankUser bankUser = BankUser.builder()
+        Customer customer = Customer.builder()
                 .id(USER_ID)
                 .username(USERNAME)
                 .accounts(List.of())
                 .build();
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(bankUser));
-        BankAccount createdBankAccount = BankAccount.builder()
-                .bankUser(bankUser)
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(customer));
+        Account createdAccount = Account.builder()
+                .customer(customer)
                 .type(AccountType.SAVING)
                 .currency(Currency.EUR)
                 .build();
 
         accountManager.createAccount(createAccountDto);
-        verify(accountRepository, times(1)).saveAndFlush(createdBankAccount);
+        verify(accountRepository, times(1)).saveAndFlush(createdAccount);
     }
 
     @Test
@@ -130,7 +130,7 @@ class AccountManagerTest {
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
-        BankAccount account = getAccount();
+        Account account = getAccount();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
         accountManager.executeTransaction(transaction);
@@ -138,15 +138,15 @@ class AccountManagerTest {
         verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
         Transaction capturedTransaction = transactionArgumentCaptor.getValue();
         assertAll(
-                () -> assertThat(capturedTransaction.getBankAccount()).isEqualTo(account),
+                () -> assertThat(capturedTransaction.getAccount()).isEqualTo(account),
                 () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.DEPOSIT),
                 () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT),
                 () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
     }
 
-    private static BankAccount getAccount() {
-        return BankAccount.builder()
+    private static Account getAccount() {
+        return Account.builder()
                 .id(ACCOUNT_ID)
                 .currency(Currency.EUR)
                 .type(AccountType.SAVING)

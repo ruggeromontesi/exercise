@@ -6,8 +6,8 @@ import lt.danske.exercise.domain.dto.CreateAccountDto;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.entity.BankAccount;
-import lt.danske.exercise.domain.entity.BankUser;
+import lt.danske.exercise.domain.entity.Account;
+import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.exceptions.AccountNotFoundException;
 import lt.danske.exercise.exceptions.InvalidInputException;
@@ -32,11 +32,11 @@ public class AccountManager implements AccountManagementUseCase {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    public BankAccount createAccount(CreateAccountDto accountDto) {
+    public Account createAccount(CreateAccountDto accountDto) {
         validateCreateAccount(accountDto);
-        BankUser user = getBankUser(accountDto.getUserId());
-        BankAccount account = BankAccount.builder()
-                .bankUser(user)
+        Customer user = getBankUser(accountDto.getUserId());
+        Account account = Account.builder()
+                .customer(user)
                 .type(accountDto.getAccountType())
                 .currency(accountDto.getCurrency())
                 .build();
@@ -44,7 +44,7 @@ public class AccountManager implements AccountManagementUseCase {
         return accountRepository.saveAndFlush(account);
     }
 
-    private BankUser getBankUser(long userId) {
+    private Customer getBankUser(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
@@ -61,10 +61,10 @@ public class AccountManager implements AccountManagementUseCase {
 
     public Transaction executeTransaction(RequestTransaction transactionDto) {
         validate(transactionDto);
-        BankAccount account = getAccount(transactionDto.getAccountId());
+        Account account = getAccount(transactionDto.getAccountId());
 
         Transaction transaction = Transaction.builder()
-                .bankAccount(account)
+                .account(account)
                 .type(transactionDto.getType())
                 .amount(transactionDto.getAmount())
                 .status(getTransactionStatus(transactionDto))
@@ -78,7 +78,7 @@ public class AccountManager implements AccountManagementUseCase {
         }
     }
 
-    private BankAccount getAccount(Long accountId) {
+    private Account getAccount(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
@@ -92,7 +92,7 @@ public class AccountManager implements AccountManagementUseCase {
     }
 
     public BalanceDto getBalance(long accountId) {
-        BankAccount account = getAccount(accountId);
+        Account account = getAccount(accountId);
         double amount = getBalanceAmount(accountId);
 
         return BalanceDto.builder()

@@ -26,16 +26,16 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @ToString
-public class BankAccount {
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bankuser_id")
-    private BankUser bankUser;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
-    @OneToMany(mappedBy = "bankAccount")
+    @OneToMany(mappedBy = "account")
     @JsonIgnore
     @ToString.Exclude
     private List<Transaction> transactions;
