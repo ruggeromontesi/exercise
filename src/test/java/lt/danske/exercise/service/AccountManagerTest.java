@@ -1,12 +1,12 @@
 package lt.danske.exercise.service;
 
+import lt.danske.exercise.domain.AccountType;
+import lt.danske.exercise.domain.Currency;
+import lt.danske.exercise.domain.TransactionStatus;
+import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
-import lt.danske.exercise.domain.Currency;
-import lt.danske.exercise.domain.dto.TransactionDto;
-import lt.danske.exercise.domain.TransactionStatus;
-import lt.danske.exercise.domain.AccountType;
-import lt.danske.exercise.domain.TransactionType;
+import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.BankUser;
 import lt.danske.exercise.domain.entity.Transaction;
@@ -27,15 +27,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static lt.danske.exercise.exceptions.AccountNotFoundException.ACCOUNT_NOT_FOUND;
+import static lt.danske.exercise.exceptions.UserNotFoundException.USER_NOT_FOUND;
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
-import static lt.danske.exercise.helper.TestHelper.getDeposit;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
+import static lt.danske.exercise.helper.TestHelper.getDeposit;
 import static lt.danske.exercise.helper.TestHelper.getSuccessfulAndUnsuccessfulTransactions;
+import static lt.danske.exercise.service.AccountManager.MISSING_ACCOUNT_TYPE;
+import static lt.danske.exercise.service.AccountManager.MISSING_CURRENCY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,10 +50,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AccountManagerTest {
-    private static final String MISSING_ACCOUNT_TYPE = "Missing account type";
-    private static final String MISSING_CURRENCY = "Missing currency";
-    private static final String USER_WAS_NOT_FOUND = "User with id %s was not found.";
-    private static final String ACCOUNT_WAS_NOT_FOUND = "Account with id %s was not found.";
     @InjectMocks
     private AccountManager accountManager;
     @Mock
@@ -119,14 +119,14 @@ class AccountManagerTest {
                 .build();
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountDto));
-        assertThat(e.getMessage()).isEqualTo(String.format(USER_WAS_NOT_FOUND, USER_ID));
+        assertThat(e.getMessage()).isEqualTo(String.format(USER_NOT_FOUND, USER_ID));
         verifyNoInteractions(accountRepository);
         verifyNoInteractions(transactionRepository);
     }
 
     @Test
     void should_executeTransaction_whenAccountExists_andBalanceIsEnough() {
-        TransactionDto transactionDto = TransactionDto.builder()
+        RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
@@ -154,7 +154,7 @@ class AccountManagerTest {
     void shouldNot_executeTransaction_whenAccountExists_andBalanceIsNotEnough() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(List.of(getDeposit(0.5 * AMOUNT_DEPOSIT)));
-        TransactionDto transactionDto = TransactionDto.builder()
+        RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(2 * AMOUNT_WITHDRAWAL)
                 .type(TransactionType.WITHDRAW)
@@ -173,14 +173,14 @@ class AccountManagerTest {
 
     @Test
     void shouldThrowException_whenAccountDoesNotExist() {
-        TransactionDto transactionDto = TransactionDto.builder()
+        RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
         Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.executeTransaction(transactionDto));
-        assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_WAS_NOT_FOUND, ACCOUNT_ID));
+        assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_NOT_FOUND, ACCOUNT_ID));
     }
 
     @Test
@@ -206,21 +206,24 @@ class AccountManagerTest {
                 b -> assertThat(b.getAmount()).isEqualTo(AMOUNT_DEPOSIT),
                 b -> assertThat(b.getCurrency()).isEqualTo(Currency.EUR)
         );
-
     }
 
     @Test
     void shouldThrow_whenAccountDoesNotExist() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
+
         Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.getBalance(ACCOUNT_ID));
-        assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_WAS_NOT_FOUND, ACCOUNT_ID));
+
+        assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_NOT_FOUND, ACCOUNT_ID));
     }
 
     @Test
     void getRecentTransactions() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
+
         List<Transaction> transactions = accountManager.getRecentTransactions(ACCOUNT_ID);
+
         Transaction lastTransaction = transactions.stream().findFirst().orElseThrow();
         assertAll(
                 () -> assertThat(transactions).hasSize(AccountManager.COUNT_OF_MOST_RECENT_TRANSACTIONS),

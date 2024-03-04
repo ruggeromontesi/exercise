@@ -3,7 +3,7 @@ package lt.danske.exercise.service;
 import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
-import lt.danske.exercise.domain.dto.TransactionDto;
+import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.BankAccount;
@@ -25,6 +25,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountManager implements AccountManagementUseCase {
     public static final int COUNT_OF_MOST_RECENT_TRANSACTIONS = 10;
+    public static final String MISSING_ACCOUNT_TYPE = "Missing account type";
+    public static final String MISSING_CURRENCY = "Missing currency";
+    public static final String AMOUNT_MUST_BE_POSITIVE = "Amount must be positive";
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -48,15 +51,16 @@ public class AccountManager implements AccountManagementUseCase {
 
     private void validateCreateAccount(CreateAccountDto accountDto) {
         if (accountDto.getAccountType() == null) {
-            throw new InvalidInputException("Missing account type");
+            throw new InvalidInputException(MISSING_ACCOUNT_TYPE);
         }
 
         if (accountDto.getCurrency() == null) {
-            throw new InvalidInputException("Missing currency");
+            throw new InvalidInputException(MISSING_CURRENCY);
         }
     }
 
-    public Transaction executeTransaction(TransactionDto transactionDto) {
+    public Transaction executeTransaction(RequestTransaction transactionDto) {
+        validate(transactionDto);
         BankAccount account = getAccount(transactionDto.getAccountId());
 
         Transaction transaction = Transaction.builder()
@@ -68,12 +72,18 @@ public class AccountManager implements AccountManagementUseCase {
         return transactionRepository.save(transaction);
     }
 
+    private static void validate(RequestTransaction transactionDto) {
+        if(transactionDto.getAmount() <= 0) {
+            throw new InvalidInputException(AMOUNT_MUST_BE_POSITIVE);
+        }
+    }
+
     private BankAccount getAccount(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
-    private TransactionStatus getTransactionStatus(TransactionDto transactionDto) {
+    private TransactionStatus getTransactionStatus(RequestTransaction transactionDto) {
 
         if(transactionDto.getType() == TransactionType.WITHDRAW && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount()) {
             return TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE;

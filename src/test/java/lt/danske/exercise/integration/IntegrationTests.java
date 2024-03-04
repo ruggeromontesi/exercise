@@ -6,7 +6,7 @@ import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
-import lt.danske.exercise.domain.dto.TransactionDto;
+import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.repository.AccountRepository;
@@ -101,7 +101,7 @@ public class IntegrationTests {
     void should_performDeposit() {
         BankAccount createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
-        TransactionDto transactionDto = TransactionDto.builder()
+        RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.DEPOSIT)
                 .amount(AMOUNT_DEPOSIT)
@@ -127,7 +127,7 @@ public class IntegrationTests {
                 .status(TransactionStatus.SUCCESS)
                 .build();
         transactionRepository.saveAndFlush(transaction);
-        TransactionDto failingWithdrawal = TransactionDto.builder()
+        RequestTransaction failingWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
                 .amount(10 * AMOUNT_WITHDRAWAL)
@@ -154,7 +154,7 @@ public class IntegrationTests {
                 .status(TransactionStatus.SUCCESS)
                 .build();
         transactionRepository.saveAndFlush(transaction);
-        TransactionDto successfulWithdrawal = TransactionDto.builder()
+        RequestTransaction successfulWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
                 .amount(AMOUNT_WITHDRAWAL)
@@ -174,7 +174,7 @@ public class IntegrationTests {
     void should_getBalance() {
         BankAccount createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
-        TransactionDto deposit = TransactionDto.builder()
+        RequestTransaction deposit = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.DEPOSIT)
                 .amount(AMOUNT_DEPOSIT)
@@ -182,7 +182,7 @@ public class IntegrationTests {
 
         IntStream.range(0, TIMES).forEach(i -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
                 new HttpEntity<>(deposit), Transaction.class));
-        TransactionDto failingWithdrawal = TransactionDto.builder()
+        RequestTransaction failingWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
                 .amount((TIMES + 1) * AMOUNT_DEPOSIT)
@@ -202,7 +202,7 @@ public class IntegrationTests {
     void should_getTransactions() {
         BankAccount createdAccount = accountManager.createAccount(getAccountDto());
         RestTemplate restTemplate = new RestTemplate();
-        TransactionDto deposit = TransactionDto.builder()
+        RequestTransaction deposit = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.DEPOSIT)
                 .amount(AMOUNT_DEPOSIT)
@@ -210,7 +210,7 @@ public class IntegrationTests {
 
         IntStream.range(0, TIMES).forEach(i -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
                 new HttpEntity<>(deposit), Transaction.class));
-        TransactionDto failingWithdrawal = TransactionDto.builder()
+        RequestTransaction failingWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
                 .amount(AMOUNT_WITHDRAWAL)

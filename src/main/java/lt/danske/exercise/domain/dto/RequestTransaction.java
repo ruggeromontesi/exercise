@@ -6,7 +6,7 @@ import lt.danske.exercise.domain.TransactionType;
 
 @Builder
 @Value
-public class TransactionDto {
+public class RequestTransaction {
     Long accountId;
     Double amount;
     TransactionType type;

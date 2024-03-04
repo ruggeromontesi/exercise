@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
-import lt.danske.exercise.domain.dto.TransactionDto;
+import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.BankAccount;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.service.AccountManagementUseCase;
@@ -36,7 +36,7 @@ public class AccountController {
     }
 
     @PostMapping(value = DO_TRANSACTION)
-    public ResponseEntity<Transaction> executeTransaction(@RequestBody TransactionDto transaction) {
+    public ResponseEntity<Transaction> executeTransaction(@RequestBody RequestTransaction transaction) {
         Transaction a = accountManager.executeTransaction(transaction);
         return ResponseEntity.ok(a);
     }
