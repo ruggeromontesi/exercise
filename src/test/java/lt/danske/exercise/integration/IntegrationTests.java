@@ -65,7 +65,8 @@ public class IntegrationTests {
                 .userId(2L)
                 .build();
 
-        assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE, new HttpEntity<>(createAccountDto), BankAccount.class));
+        assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
+                new HttpEntity<>(createAccountDto), BankAccount.class));
     }
 
     @Test
@@ -73,7 +74,8 @@ public class IntegrationTests {
         RestTemplate restTemplate = new RestTemplate();
         CreateAccountDto createAccountDto = getAccountDto();
 
-        ResponseEntity<BankAccount> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE, new HttpEntity<>(createAccountDto), BankAccount.class);
+        ResponseEntity<BankAccount> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
+                new HttpEntity<>(createAccountDto), BankAccount.class);
         List<BankAccount> accounts = accountRepository.findByUserId(1L);
 
         assertAll(
@@ -101,11 +103,12 @@ public class IntegrationTests {
                 .type(TransactionType.DEPOSIT)
                 .amount(AMOUNT_DEPOSIT)
                 .build();
-        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(transactionDto), Transaction.class);
+        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
+                new HttpEntity<>(transactionDto), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(100.0),
+                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(AMOUNT_DEPOSIT),
                 () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
     }
@@ -121,17 +124,19 @@ public class IntegrationTests {
                 .status(TransactionStatus.SUCCESS)
                 .build();
         transactionRepository.saveAndFlush(transaction);
-        TransactionDto transactionDto = TransactionDto.builder()
+        TransactionDto failingWithdrawal = TransactionDto.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
                 .amount(10 * AMOUNT_WITHDRAWAL)
                 .build();
-        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(transactionDto), Transaction.class);
+        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
+                new HttpEntity<>(failingWithdrawal), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(100.0),
-                () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
+                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(AMOUNT_DEPOSIT),
+                () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus())
+                        .isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
         );
     }
 
@@ -146,16 +151,18 @@ public class IntegrationTests {
                 .status(TransactionStatus.SUCCESS)
                 .build();
         transactionRepository.saveAndFlush(transaction);
-        TransactionDto transactionDto = TransactionDto.builder()
+        TransactionDto successfulWithdrawal = TransactionDto.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
                 .amount(AMOUNT_WITHDRAWAL)
                 .build();
-        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(transactionDto), Transaction.class);
+        ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
+                new HttpEntity<>(successfulWithdrawal), Transaction.class);
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
+                () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount())
+                        .isEqualTo(AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
                 () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
     }
@@ -170,19 +177,21 @@ public class IntegrationTests {
                 .amount(AMOUNT_DEPOSIT)
                 .build();
 
-        IntStream.range(0, TIMES).forEach(i -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(deposit), Transaction.class));
-        TransactionDto withdrawal = TransactionDto.builder()
+        IntStream.range(0, TIMES).forEach(i -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
+                new HttpEntity<>(deposit), Transaction.class));
+        TransactionDto failingWithdrawal = TransactionDto.builder()
                 .accountId(createdAccount.getId())
                 .type(TransactionType.WITHDRAW)
-                .amount(10 * AMOUNT_DEPOSIT )
+                .amount((TIMES + 1) * AMOUNT_DEPOSIT )
                 .build();
-        restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(withdrawal), Transaction.class);
-        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + BALANCE_ACCOUNT_ID , HttpMethod.GET, new HttpEntity<>(null), BalanceDto.class, createdAccount.getId());
+        restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(failingWithdrawal), Transaction.class);
+        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + BALANCE_ACCOUNT_ID ,
+                HttpMethod.GET, new HttpEntity<>(null), BalanceDto.class, createdAccount.getId());
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(response.getBody()).isNotNull(),
-                () -> assertThat(response.getBody().getAmount()).isEqualTo(TIMES * AMOUNT_DEPOSIT)
+                () -> assertThat(Objects.requireNonNull(response.getBody()).getAmount()).isEqualTo(TIMES * AMOUNT_DEPOSIT)
         );
     }
 }
