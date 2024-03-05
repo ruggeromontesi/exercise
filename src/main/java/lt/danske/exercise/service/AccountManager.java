@@ -1,6 +1,7 @@
 package lt.danske.exercise.service;
 
 import lombok.RequiredArgsConstructor;
+import lt.danske.exercise.domain.AccountType;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
@@ -62,13 +63,13 @@ public class AccountManager implements AccountManagementUseCase {
     public Transaction executeTransaction(RequestTransaction transactionDto) {
         validate(transactionDto);
         Account account = getAccount(transactionDto.getAccountId());
-
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .type(transactionDto.getType())
                 .amount(transactionDto.getAmount())
-                .status(getTransactionStatus(transactionDto))
+                .status(getTransactionStatus(transactionDto, account.getType()))
                 .build();
+
         return transactionRepository.save(transaction);
     }
 
@@ -83,12 +84,17 @@ public class AccountManager implements AccountManagementUseCase {
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
-    private TransactionStatus getTransactionStatus(RequestTransaction transactionDto) {
-
-        if (transactionDto.getType() == TransactionType.WITHDRAW && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount()) {
+    private TransactionStatus getTransactionStatus(RequestTransaction transactionDto, AccountType accountType) {
+        if (isTransactionCausingNotAllowedOverdraft(transactionDto, accountType)) {
             return TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE;
         }
         return TransactionStatus.SUCCESS;
+    }
+
+    private boolean isTransactionCausingNotAllowedOverdraft(RequestTransaction transactionDto, AccountType type) {
+        return type == AccountType.SAVING
+                && transactionDto.getType() == TransactionType.WITHDRAW
+                && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount();
     }
 
     public BalanceDto getBalance(long accountId) {
@@ -103,6 +109,7 @@ public class AccountManager implements AccountManagementUseCase {
 
     private double getBalanceAmount(long accountId) {
         List<Transaction> transactions = transactionRepository.findByAccountId(accountId);
+
         return transactions.stream()
                 .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
                 .mapToDouble(t -> t.getAmount() * t.getType().getMultiplier())
@@ -111,11 +118,10 @@ public class AccountManager implements AccountManagementUseCase {
 
     public List<Transaction> getRecentTransactions(long accountId) {
         getAccount(accountId);
+
         return transactionRepository.findByAccountId(accountId).stream()
-                .sorted(Comparator.comparingLong(
-                                        (Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC)
-                                )
-                                .thenComparingLong(Transaction::getId).reversed()
+                .sorted(Comparator.comparingLong((Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC))
+                        .thenComparingLong(Transaction::getId).reversed()
                 )
                 .limit(COUNT_OF_MOST_RECENT_TRANSACTIONS)
                 .toList();
