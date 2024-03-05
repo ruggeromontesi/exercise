@@ -112,8 +112,11 @@ public class AccountManager implements AccountManagementUseCase {
     public List<Transaction> getRecentTransactions(long accountId) {
         getAccount(accountId);
         return transactionRepository.findByAccountId(accountId).stream()
-                .sorted(Comparator.comparingLong((Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC)).reversed()
-                        .thenComparingLong(Transaction::getId).reversed())
+                .sorted(Comparator.comparingLong(
+                        (Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC)
+                                )
+                        .thenComparingLong(Transaction::getId).reversed()
+                )
                 .limit(COUNT_OF_MOST_RECENT_TRANSACTIONS)
                 .toList();
     }
