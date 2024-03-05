@@ -45,10 +45,11 @@ class TransactionRepositoryTest {
                 .amount(11.0)
                 .status(TransactionStatus.SUCCESS)
                 .build();
-        transactionRepository.save(transaction1);
-        transactionRepository.save(transaction2);
+        entityManager.persist(transaction1);
+        entityManager.persist(transaction2);
 
         List<Transaction> retrievedTransactions = transactionRepository.findByAccountId(savedAccount.getId());
+
         assertAll(
                 () -> assertThat(retrievedTransactions).hasSize(2),
                 () -> {

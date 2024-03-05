@@ -27,7 +27,7 @@ class AccountRepositoryTest {
                 .type(AccountType.SAVING)
                 .customer(customer)
                 .build();
-        accountRepository.save(account);
+        entityManager.persist(account);
 
         Account retrievedAccount = accountRepository.findByCustomerId(customer.getId()).stream().findFirst().orElseThrow();
 
