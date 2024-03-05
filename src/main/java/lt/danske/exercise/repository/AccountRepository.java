@@ -10,5 +10,5 @@ import java.util.List;
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query(value = "SELECT * FROM ACCOUNT WHERE CUSTOMER_ID = :userId", nativeQuery = true)
-    List<Account> findByUserId(@Param("userId")Long userId);
+    List<Account> findByUserId(@Param("userId") Long userId);
 }
