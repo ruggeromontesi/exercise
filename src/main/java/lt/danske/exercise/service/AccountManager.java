@@ -1,11 +1,11 @@
 package lt.danske.exercise.service;
 
 import lombok.RequiredArgsConstructor;
+import lt.danske.exercise.domain.TransactionStatus;
+import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountDto;
 import lt.danske.exercise.domain.dto.RequestTransaction;
-import lt.danske.exercise.domain.TransactionStatus;
-import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
@@ -73,7 +73,7 @@ public class AccountManager implements AccountManagementUseCase {
     }
 
     private static void validate(RequestTransaction transactionDto) {
-        if(transactionDto.getAmount() <= 0) {
+        if (transactionDto.getAmount() <= 0) {
             throw new InvalidInputException(AMOUNT_MUST_BE_POSITIVE);
         }
     }
@@ -85,7 +85,7 @@ public class AccountManager implements AccountManagementUseCase {
 
     private TransactionStatus getTransactionStatus(RequestTransaction transactionDto) {
 
-        if(transactionDto.getType() == TransactionType.WITHDRAW && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount()) {
+        if (transactionDto.getType() == TransactionType.WITHDRAW && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount()) {
             return TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE;
         }
         return TransactionStatus.SUCCESS;
@@ -112,8 +112,11 @@ public class AccountManager implements AccountManagementUseCase {
     public List<Transaction> getRecentTransactions(long accountId) {
         getAccount(accountId);
         return transactionRepository.findByAccountId(accountId).stream()
-                .sorted(Comparator.comparingLong((Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC)).reversed()
-                        .thenComparingLong(Transaction::getId).reversed())
+                .sorted(Comparator.comparingLong(
+                                        (Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC)
+                                )
+                                .thenComparingLong(Transaction::getId).reversed()
+                )
                 .limit(COUNT_OF_MOST_RECENT_TRANSACTIONS)
                 .toList();
     }
