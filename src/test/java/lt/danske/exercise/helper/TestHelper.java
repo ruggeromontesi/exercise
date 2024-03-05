@@ -49,13 +49,13 @@ public class TestHelper {
 
     public static Account getAccount() {
         return Account.builder()
-                .customer(getUser())
+                .customer(getCustomer())
                 .type(AccountType.SAVING)
                 .currency(Currency.EUR)
                 .build();
     }
 
-    public static Customer getUser() {
+    public static Customer getCustomer() {
         return Customer.builder()
                 .id(USER_ID)
                 .username(USERNAME)
