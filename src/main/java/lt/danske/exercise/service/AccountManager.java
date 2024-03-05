@@ -63,13 +63,13 @@ public class AccountManager implements AccountManagementUseCase {
     public Transaction executeTransaction(RequestTransaction transactionDto) {
         validate(transactionDto);
         Account account = getAccount(transactionDto.getAccountId());
-
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .type(transactionDto.getType())
                 .amount(transactionDto.getAmount())
                 .status(getTransactionStatus(transactionDto, account.getType()))
                 .build();
+
         return transactionRepository.save(transaction);
     }
 
@@ -109,6 +109,7 @@ public class AccountManager implements AccountManagementUseCase {
 
     private double getBalanceAmount(long accountId) {
         List<Transaction> transactions = transactionRepository.findByAccountId(accountId);
+
         return transactions.stream()
                 .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
                 .mapToDouble(t -> t.getAmount() * t.getType().getMultiplier())
@@ -117,6 +118,7 @@ public class AccountManager implements AccountManagementUseCase {
 
     public List<Transaction> getRecentTransactions(long accountId) {
         getAccount(accountId);
+
         return transactionRepository.findByAccountId(accountId).stream()
                 .sorted(Comparator.comparingLong((Transaction t) -> t.getCreated().toEpochSecond(ZoneOffset.UTC))
                         .thenComparingLong(Transaction::getId).reversed()
