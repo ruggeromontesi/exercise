@@ -6,6 +6,10 @@
 * mvn spring-boot:run
 * @pause
 
+# API documentation
+After running application API documentation is available at:
+http://localhost:8080/swagger-ui/index.html
+
 # how to create bank account
 curl -X 'POST' 'http://localhost:8080/account/management/create' -H "Content-Type: application/json" -d '{ "userId": 1, "currency" : "EUR", "accountType": "SAVING"}'
 
