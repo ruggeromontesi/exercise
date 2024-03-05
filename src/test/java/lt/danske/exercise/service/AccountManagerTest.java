@@ -15,7 +15,7 @@ import lt.danske.exercise.exceptions.InvalidInputException;
 import lt.danske.exercise.exceptions.UserNotFoundException;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.TransactionRepository;
-import lt.danske.exercise.repository.UserRepository;
+import lt.danske.exercise.repository.CustomerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -52,7 +52,7 @@ class AccountManagerTest {
     @InjectMocks
     private AccountManager accountManager;
     @Mock
-    private UserRepository userRepository;
+    private CustomerRepository customerRepository;
     @Mock
     private AccountRepository accountRepository;
     @Mock
@@ -72,7 +72,7 @@ class AccountManagerTest {
                 .username(USERNAME)
                 .accounts(List.of())
                 .build();
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(customer));
+        when(customerRepository.findById(USER_ID)).thenReturn(Optional.of(customer));
         Account createdAccount = Account.builder()
                 .customer(customer)
                 .type(AccountType.SAVING)
@@ -91,7 +91,7 @@ class AccountManagerTest {
                 .build();
         Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountDto));
         assertThat(e.getMessage()).isEqualTo(MISSING_ACCOUNT_TYPE);
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(customerRepository);
         verifyNoInteractions(accountRepository);
         verifyNoInteractions(transactionRepository);
     }
@@ -104,7 +104,7 @@ class AccountManagerTest {
                 .build();
         Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountDto));
         assertThat(e.getMessage()).isEqualTo(MISSING_CURRENCY);
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(customerRepository);
         verifyNoInteractions(accountRepository);
         verifyNoInteractions(transactionRepository);
     }
@@ -116,7 +116,7 @@ class AccountManagerTest {
                 .userId(USER_ID)
                 .currency(Currency.EUR)
                 .build();
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
+        when(customerRepository.findById(USER_ID)).thenReturn(Optional.empty());
         Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountDto));
         assertThat(e.getMessage()).isEqualTo(String.format(USER_NOT_FOUND, USER_ID));
         verifyNoInteractions(accountRepository);

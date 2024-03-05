@@ -9,7 +9,7 @@ import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.TransactionRepository;
-import lt.danske.exercise.repository.UserRepository;
+import lt.danske.exercise.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -20,13 +20,13 @@ import java.util.List;
 @Component
 public class DataLoader implements ApplicationRunner {
 
-    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
     @Autowired
-    public DataLoader(UserRepository userRepository, AccountRepository accountRepository, TransactionRepository transactionRepository) {
-        this.userRepository = userRepository;
+    public DataLoader(CustomerRepository customerRepository, AccountRepository accountRepository, TransactionRepository transactionRepository) {
+        this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
     }
@@ -36,7 +36,7 @@ public class DataLoader implements ApplicationRunner {
         Customer user = Customer.builder()
                 .username("ruggero")
                 .build();
-        userRepository.save(user);
+        customerRepository.save(user);
 
         Account account = Account.builder()
                 .customer(user)

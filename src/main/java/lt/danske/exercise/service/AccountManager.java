@@ -15,7 +15,7 @@ import lt.danske.exercise.exceptions.InvalidInputException;
 import lt.danske.exercise.exceptions.UserNotFoundException;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.TransactionRepository;
-import lt.danske.exercise.repository.UserRepository;
+import lt.danske.exercise.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneOffset;
@@ -29,7 +29,7 @@ public class AccountManager implements AccountManagementUseCase {
     public static final String MISSING_ACCOUNT_TYPE = "Missing account type";
     public static final String MISSING_CURRENCY = "Missing currency";
     public static final String AMOUNT_MUST_BE_POSITIVE = "Amount must be positive";
-    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
@@ -46,7 +46,7 @@ public class AccountManager implements AccountManagementUseCase {
     }
 
     private Customer getBankUser(long userId) {
-        return userRepository.findById(userId)
+        return customerRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
