@@ -1,5 +1,7 @@
 package lt.danske.exercise.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.domain.dto.BalanceDto;
@@ -29,26 +31,33 @@ public class AccountController {
     public static final String TRANSACTIONS_ACCOUNT_ID = "/transactions/{accountId}";
     private final AccountManagementUseCase accountManager;
 
+    @Operation(summary = "Create an account for a customer passing customer_id")
     @PostMapping(value = CREATE)
     public ResponseEntity<Account> createAccount(@RequestBody @Valid CreateAccountDto account) {
         Account createdAccount = accountManager.createAccount(account);
         return ResponseEntity.ok().body(createdAccount);
     }
 
+    @Operation(summary = "Perform a DEPOSIT/WITHDRAWAL on account given account id")
     @PostMapping(value = DO_TRANSACTION)
     public ResponseEntity<Transaction> executeTransaction(@RequestBody RequestTransaction transaction) {
         Transaction a = accountManager.executeTransaction(transaction);
         return ResponseEntity.ok(a);
     }
 
+    @Operation(summary = "Read account balance")
     @GetMapping(BALANCE_ACCOUNT_ID)
-    public ResponseEntity<BalanceDto> getBalance(@PathVariable("accountId") long accountId) {
+    public ResponseEntity<BalanceDto> getBalance(@Parameter(description = "id of the account for which balance is required")
+                                                 @PathVariable("accountId") long accountId) {
         BalanceDto balance = accountManager.getBalance(accountId);
         return ResponseEntity.ok(balance);
     }
 
+    @Operation(summary = "List the last 10 transactions")
     @GetMapping(TRANSACTIONS_ACCOUNT_ID)
-    public ResponseEntity<List<Transaction>> getLastTenTransactions(@PathVariable("accountId") long accountId) {
+    public ResponseEntity<List<Transaction>> getLastTenTransactions(
+            @Parameter(description = "id of the account for which transaction list is required")
+            @PathVariable("accountId") long accountId) {
         List<Transaction> transactions = accountManager.getRecentTransactions(accountId);
         return ResponseEntity.ok(transactions);
     }
