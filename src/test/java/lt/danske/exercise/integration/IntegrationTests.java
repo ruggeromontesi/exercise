@@ -79,7 +79,7 @@ public class IntegrationTests {
 
         ResponseEntity<Account> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
                 new HttpEntity<>(createAccountDto), Account.class);
-        List<Account> accounts = accountRepository.findByUserId(1L);
+        List<Account> accounts = accountRepository.findByCustomerId(1L);
 
         assertAll(
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
