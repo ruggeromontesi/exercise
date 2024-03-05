@@ -46,7 +46,7 @@ class AccountRepositoryTest {
                 .type(AccountType.SAVING)
                 .customer(customer)
                 .build();
-        accountRepository.save(account);
+        entityManager.persist(account);
 
         assertThat(accountRepository.findByCustomerId(2L)).isEmpty();
     }
