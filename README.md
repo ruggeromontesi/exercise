@@ -21,9 +21,10 @@ Response returns the id of the account created. Note it as you will need this id
 # how to deposit/ withdraw money
 Use POST method  http://localhost:8080/swagger-ui/index.html#/account-controller/executeTransaction. 
 Specify :
-accountId,
-positive amount,
-type of transaction: DEPOSIT or WITHDRAWAL
+* accountId,
+* positive amount,
+* type of transaction: DEPOSIT or WITHDRAWAL
+  
 Response returns transaction info such as transaction id, type, status, execution time
 If the amount of withdrawal is bigger than the available balance the transaction will not be performed.
 
