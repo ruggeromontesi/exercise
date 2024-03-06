@@ -32,8 +32,8 @@ import static lt.danske.exercise.exceptions.UserNotFoundException.USER_NOT_FOUND
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
+import static lt.danske.exercise.helper.TestHelper.CUSTOMER_ID;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
-import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
@@ -60,34 +60,38 @@ class AccountManagerTest {
     private TransactionRepository transactionRepository;
     @Captor
     private ArgumentCaptor<Transaction> transactionArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Account> accountArgumentCaptor;
 
     @Test
-    void should_createAccount_whenUserExist_and_currencyAndTypeAreProvided() {
+    void should_createAccount_whenUserExists_and_currencyAndTypeAreProvided() {
         CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .accountType(AccountType.SAVING)
-                .userId(USER_ID)
+                .userId(CUSTOMER_ID)
                 .currency(Currency.EUR)
                 .build();
         Customer customer = Customer.builder()
-                .id(USER_ID)
+                .id(CUSTOMER_ID)
                 .username(USERNAME)
                 .accounts(List.of())
                 .build();
-        when(customerRepository.findById(USER_ID)).thenReturn(Optional.of(customer));
-        Account createdAccount = Account.builder()
-                .customer(customer)
-                .type(AccountType.SAVING)
-                .currency(Currency.EUR)
-                .build();
+        when(customerRepository.findById(CUSTOMER_ID)).thenReturn(Optional.of(customer));
 
         accountManager.createAccount(createAccountRequest);
-        verify(accountRepository, times(1)).saveAndFlush(createdAccount);
+        verify(accountRepository, times(1)).saveAndFlush(accountArgumentCaptor.capture());
+        Account createdAccount = accountArgumentCaptor.getValue();
+        assertAll(
+                () -> assertThat(createdAccount.getType()).isEqualTo(AccountType.SAVING),
+                () -> assertThat(createdAccount.getCustomer().getId()).isEqualTo(CUSTOMER_ID),
+                () -> assertThat(createdAccount.getTransactions()).isEmpty()
+        );
+
     }
 
     @Test
     void shouldThrow_whenAccountTypeIsMissing() {
         CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
-                .userId(USER_ID)
+                .userId(CUSTOMER_ID)
                 .currency(Currency.EUR)
                 .build();
         Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountRequest));
@@ -100,7 +104,7 @@ class AccountManagerTest {
     @Test
     void shouldThrow_whenCurrencyIsMissing() {
         CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
-                .userId(USER_ID)
+                .userId(CUSTOMER_ID)
                 .accountType(AccountType.SAVING)
                 .build();
         Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountRequest));
@@ -114,12 +118,12 @@ class AccountManagerTest {
     void shouldThrow_whenUSerNotFound() {
         CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .accountType(AccountType.SAVING)
-                .userId(USER_ID)
+                .userId(CUSTOMER_ID)
                 .currency(Currency.EUR)
                 .build();
-        when(customerRepository.findById(USER_ID)).thenReturn(Optional.empty());
+        when(customerRepository.findById(CUSTOMER_ID)).thenReturn(Optional.empty());
         Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountRequest));
-        assertThat(e.getMessage()).isEqualTo(String.format(USER_NOT_FOUND, USER_ID));
+        assertThat(e.getMessage()).isEqualTo(String.format(USER_NOT_FOUND, CUSTOMER_ID));
         verifyNoInteractions(accountRepository);
         verifyNoInteractions(transactionRepository);
     }

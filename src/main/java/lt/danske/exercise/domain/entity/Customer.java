@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,5 +27,5 @@ public class Customer {
     private String username;
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Account> accounts;
+    private List<Account> accounts = new ArrayList<>();
 }

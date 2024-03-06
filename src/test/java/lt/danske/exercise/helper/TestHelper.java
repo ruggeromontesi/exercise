@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class TestHelper {
     public static final double AMOUNT_WITHDRAWAL = 50.0;
     public static final double AMOUNT_BALANCE = 1800.5;
-    public static long USER_ID = 1001L;
+    public static long CUSTOMER_ID = 1001L;
     public static final String USERNAME = "TEST_USERNAME";
     public static final long ACCOUNT_ID = 100001L;
     public static final double AMOUNT_DEPOSIT = 100.0;
@@ -70,7 +70,7 @@ public class TestHelper {
 
     public static Customer getCustomer() {
         return Customer.builder()
-                .id(USER_ID)
+                .id(CUSTOMER_ID)
                 .username(USERNAME)
                 .accounts(List.of())
                 .build();
@@ -84,7 +84,7 @@ public class TestHelper {
 
     public static CreateAccountRequest getCreateAccountRequest() {
         return CreateAccountRequest.builder()
-                .userId(USER_ID)
+                .userId(CUSTOMER_ID)
                 .accountType(AccountType.SAVING)
                 .currency(Currency.EUR)
                 .build();

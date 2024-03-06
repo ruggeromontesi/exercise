@@ -25,7 +25,7 @@ import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_BALANCE;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
-import static lt.danske.exercise.helper.TestHelper.USER_ID;
+import static lt.danske.exercise.helper.TestHelper.CUSTOMER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
 import static lt.danske.exercise.helper.TestHelper.getBalanceDto;
@@ -56,7 +56,7 @@ class AccountControllerTest {
         assertAll(
                 () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(Objects.requireNonNull(result.getBody()).getId()).isEqualTo(ACCOUNT_ID),
-                () -> assertThat((Objects.requireNonNull(result.getBody()).getCustomer().getId())).isEqualTo(USER_ID),
+                () -> assertThat((Objects.requireNonNull(result.getBody()).getCustomer().getId())).isEqualTo(CUSTOMER_ID),
                 () -> assertThat((Objects.requireNonNull(result.getBody()).getCustomer().getUsername())).isEqualTo(USERNAME)
         );
 

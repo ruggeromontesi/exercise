@@ -12,11 +12,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lt.danske.exercise.domain.Currency;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,7 +24,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @Getter
-@EqualsAndHashCode
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,7 +33,8 @@ public class Account {
     private Customer customer;
     @OneToMany(mappedBy = "account")
     @JsonIgnore
-    private List<Transaction> transactions;
+    @Builder.Default
+    private List<Transaction> transactions = new ArrayList<>();
     private AccountType type;
     @NotNull
     private Currency currency;
