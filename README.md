@@ -15,7 +15,7 @@ Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccoun
 Response returns the id of the account created. Note it as you will need this id to perform all operations below
 
 # how to deposit/ withdraw money
-Use POST method account/do/transaction. 
+Use POST method  http://localhost:8080/swagger-ui/index.html#/account-controller/executeTransaction. 
 Specify :
 accountId,
 positive amount,
