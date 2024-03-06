@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Objects;
 
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
@@ -26,6 +27,7 @@ import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
+import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
 import static lt.danske.exercise.helper.TestHelper.getBalanceDto;
 import static lt.danske.exercise.helper.TestHelper.getCreateAccountRequest;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
@@ -91,6 +93,13 @@ class AccountControllerTest {
     }
 
     @Test
-    void getLastTenTransactions() {
+    void should_getLastTenTransactions() {
+        List<Transaction> allSuccessfulTransactions = getAllSuccessfulTransactions(10);
+        when(accountManager.getRecentTransactions(ACCOUNT_ID)).thenReturn(allSuccessfulTransactions);
+        ResponseEntity<List<Transaction>> response = accountController.getLastTenTransactions(ACCOUNT_ID);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        List<Transaction> transactions = response.getBody();
+
+        assertThat(transactions).isEqualTo(allSuccessfulTransactions);
     }
 }
