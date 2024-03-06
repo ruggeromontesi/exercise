@@ -124,7 +124,7 @@
                 <version>10.7.1</version>
                 <configuration>
                     <user>ruggero</user>
-                    <password>1234</password>
+                    <password>{Mgdb1MYsIsMH/6T/Qk8o+R+1AF02hWTVKCO22TykBSc=}</password>
                     <url>jdbc:h2:mem:test</url>
                 </configuration>
             </plugin>

@@ -1,6 +1,5 @@
 package lt.danske.exercise.integration;
 
-import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
@@ -8,6 +7,7 @@ import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
+import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.TransactionRepository;
@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static lt.danske.exercise.controller.AccountController.GET_BALANCE;
 import static lt.danske.exercise.controller.AccountController.CREATE;
 import static lt.danske.exercise.controller.AccountController.DO_TRANSACTION;
-import static lt.danske.exercise.controller.AccountController.ROOT;
+import static lt.danske.exercise.controller.AccountController.GET_BALANCE;
 import static lt.danske.exercise.controller.AccountController.GET_TRANSACTIONS;
+import static lt.danske.exercise.controller.AccountController.ROOT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class IntegrationTests {
+class IntegrationTests {
     private static final String LOCALHOST_8080 = "http://localhost:8080";
     private static final int TIMES = 5;
     @Autowired
