@@ -56,12 +56,17 @@ class AccountControllerTest {
     }
 
     @Test
-    void executeTransaction() {
+    void should_executeTransaction() {
         RequestTransaction requestTransaction = getRequestTransaction(TransactionType.DEPOSIT, AMOUNT_DEPOSIT);
         when(accountManager.executeTransaction(requestTransaction)).thenReturn(getDeposit(AMOUNT_DEPOSIT));
 
         ResponseEntity<Transaction> response = accountController.executeTransaction(requestTransaction);
         verify(accountManager, times(1)).executeTransaction(requestTransaction);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Transaction transaction = response.getBody();
+        assert transaction != null;
+        assertThat(transaction.getType()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(transaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT);
     }
 
 

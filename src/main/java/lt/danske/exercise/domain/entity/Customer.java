@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.List;
 
@@ -27,6 +26,5 @@ public class Customer {
     private String username;
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     @JsonIgnore
-    @ToString.Exclude
     private List<Account> accounts;
 }
