@@ -14,6 +14,7 @@ http://localhost:8080/
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccount specify 
  * userId
  * account type: [SAVING, CURRENT].
+
 System is "pre-loaded" with two users with id 1 and 2.
 Response returns the id of the account created. Note it as you will need this id to perform all operations below
 
