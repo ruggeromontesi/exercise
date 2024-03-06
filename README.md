@@ -10,7 +10,7 @@
 After running application API documentation is available at:
 http://localhost:8080/
 
-# how to create bank account
+# How to create bank account
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccount specify 
  * userId
  * account type: [SAVING, CURRENT].
@@ -18,7 +18,7 @@ Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccoun
 System is "pre-loaded" with two users with id 1 and 2.
 Response returns the id of the account created. Note it as you will need this id to perform all operations below
 
-# how to deposit/ withdraw money
+# How to deposit/ withdraw money
 Use POST method  http://localhost:8080/swagger-ui/index.html#/account-controller/executeTransaction. 
 Specify :
 * accountId,
@@ -28,11 +28,15 @@ Specify :
 Response returns transaction info such as transaction id, type, status, execution time
 If the amount of withdrawal is bigger than the available balance the transaction will not be performed.
 
-# how to get balance
-Use GET method account/get/balance/ and specify accountId
+# How to get balance
+Use http://localhost:8080/swagger-ui/index.html#/account-controller/getBalance 
+specify
+* accountId
 
-# how to get transactions
-Use GET method account/get/transactions and specify accountId
+# How to get transactions
+Use http://localhost:8080/swagger-ui/index.html#/account-controller/getLastTenTransactions
+Specify 
+* accountId
 # h2 console
 available at http://localhost:8080/h2-console
 user: ruggero
