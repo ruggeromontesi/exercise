@@ -7,7 +7,7 @@
 
 # API documentation
 After running application API documentation is available at:
-http://localhost:8080/
+http://localhost:8080
 
 # How to create bank account
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccount specify 
