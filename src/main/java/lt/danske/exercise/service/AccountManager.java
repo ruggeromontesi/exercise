@@ -1,7 +1,7 @@
 package lt.danske.exercise.service;
 
 import lombok.RequiredArgsConstructor;
-import lt.danske.exercise.domain.AccountType;
+import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;

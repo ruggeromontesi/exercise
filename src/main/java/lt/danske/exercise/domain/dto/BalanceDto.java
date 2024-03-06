@@ -10,13 +10,6 @@ import lt.danske.exercise.domain.Currency;
 public class BalanceDto {
     @NonNull
     Double amount;
+    @NonNull
     Currency currency;
-
-    @Override
-    public String toString() {
-        return "BalanceDto{" +
-                "amount=" + amount +
-                ", currency=" + currency +
-                '}';
-    }
 }

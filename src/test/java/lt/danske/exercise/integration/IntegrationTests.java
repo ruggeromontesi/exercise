@@ -1,6 +1,6 @@
 package lt.danske.exercise.integration;
 
-import lt.danske.exercise.domain.AccountType;
+import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;

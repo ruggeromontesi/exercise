@@ -16,7 +16,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lt.danske.exercise.domain.Currency;
-import lt.danske.exercise.domain.AccountType;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package lt.danske.exercise.repository;
 
-import lt.danske.exercise.domain.AccountType;
+import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Customer;

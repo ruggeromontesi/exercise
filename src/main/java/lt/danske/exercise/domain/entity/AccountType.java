@@ -1,4 +1,4 @@
-package lt.danske.exercise.domain;
+package lt.danske.exercise.domain.entity;
 
 public enum AccountType {
     SAVING,
