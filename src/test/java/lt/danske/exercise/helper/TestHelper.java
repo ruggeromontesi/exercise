@@ -2,10 +2,10 @@ package lt.danske.exercise.helper;
 
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
-import lt.danske.exercise.domain.dto.CreateAccountRequest;
-import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.TransactionType;
+import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.entity.Account;
+import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
 
@@ -20,7 +20,7 @@ public class TestHelper {
     public static final String USERNAME = "TEST_USERNAME";
     public static final long ACCOUNT_ID = 100001L;
     public static final double AMOUNT_DEPOSIT = 100.0;
-    private static long i = 0;
+    private static long transactionCounter = 0;
 
     public static List<Transaction> getAllSuccessfulTransactions(int numberOfTransactions) {
         List<Transaction> deposits = IntStream.range(0, numberOfTransactions - 1).mapToObj(i -> getDeposit(AMOUNT_DEPOSIT)).toList();
@@ -30,7 +30,7 @@ public class TestHelper {
 
     public static Transaction getWithdrawal(double amountWithdrawal, TransactionStatus status) {
         return Transaction.builder()
-                .id(i++)
+                .id(transactionCounter++)
                 .account(getAccount())
                 .type(TransactionType.WITHDRAWAL)
                 .amount(amountWithdrawal)
@@ -40,7 +40,7 @@ public class TestHelper {
 
     public static Transaction getDeposit(double amountDeposit) {
         return Transaction.builder()
-                .id(i++)
+                .id(transactionCounter++)
                 .account(getAccount())
                 .type(TransactionType.DEPOSIT)
                 .amount(amountDeposit)
@@ -50,6 +50,7 @@ public class TestHelper {
 
     public static Account getAccount() {
         return Account.builder()
+                .id(ACCOUNT_ID)
                 .customer(getCustomer())
                 .type(AccountType.SAVING)
                 .currency(Currency.EUR)
