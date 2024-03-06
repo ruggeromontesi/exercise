@@ -85,7 +85,10 @@ public class IntegrationTests {
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(response.getBody()).isNotNull(),
                 () -> assertThat(accounts).hasSize(1),
-                () -> assertThat(accounts.stream().findFirst().map(Account::getType).orElseThrow()).isEqualTo(AccountType.SAVING)
+                () -> {
+                    assert accounts != null;
+                    assertThat(accounts.stream().findFirst().map(Account::getType).orElseThrow()).isEqualTo(AccountType.SAVING);
+                }
         );
     }
 
@@ -243,7 +246,7 @@ public class IntegrationTests {
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(response.getBody().get(0).getType()).isEqualTo(TransactionType.WITHDRAWAL)
+                () -> assertThat(Objects.requireNonNull(response.getBody()).get(0).getType()).isEqualTo(TransactionType.WITHDRAWAL)
         );
 
     }

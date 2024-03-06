@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 
