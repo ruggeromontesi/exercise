@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -29,9 +31,12 @@ class AccountRepositoryTest {
                 .build();
         entityManager.persist(account);
 
-        Account retrievedAccount = accountRepository.findByCustomerId(customer.getId()).stream().findFirst().orElseThrow();
+        List<Account> accountsOfTestUser = accountRepository.findByCustomerId(customer.getId());
+
+        Account retrievedAccount = accountsOfTestUser.stream().findFirst().orElseThrow();
 
         assertAll(
+                () -> assertThat(accountsOfTestUser).hasSize(1),
                 () -> assertThat(retrievedAccount.getType()).isEqualTo(AccountType.SAVING),
                 () -> assertThat(retrievedAccount.getCurrency()).isEqualTo(Currency.EUR),
                 () -> assertThat(retrievedAccount.getCustomer().getId()).isEqualTo(customer.getId())
