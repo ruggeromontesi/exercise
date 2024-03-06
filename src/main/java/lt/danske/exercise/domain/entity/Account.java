@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lt.danske.exercise.domain.Currency;
@@ -23,8 +25,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Data
-@ToString
+@Getter
+@EqualsAndHashCode
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,7 +36,6 @@ public class Account {
     private Customer customer;
     @OneToMany(mappedBy = "account")
     @JsonIgnore
-    @ToString.Exclude
     private List<Transaction> transactions;
     private AccountType type;
     @NotNull
