@@ -130,7 +130,7 @@ class AccountManagerTest {
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
-        Account account = getAccount();
+        Account account = getSavingAccount();
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
         accountManager.executeTransaction(transaction);
@@ -145,7 +145,7 @@ class AccountManagerTest {
         );
     }
 
-    private static Account getAccount() {
+    private static Account getSavingAccount() {
         return Account.builder()
                 .id(ACCOUNT_ID)
                 .currency(Currency.EUR)
@@ -153,9 +153,17 @@ class AccountManagerTest {
                 .build();
     }
 
+    private static Account getCurrentAccount() {
+        return Account.builder()
+                .id(ACCOUNT_ID)
+                .currency(Currency.EUR)
+                .type(AccountType.CURRENT)
+                .build();
+    }
+
     @Test
-    void shouldNot_executeTransaction_whenAccountExists_andBalanceIsNotEnough() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+    void shouldNot_executeTransaction_whenSavingAccountExists_andBalanceIsNotEnough() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(List.of(getDeposit(0.5 * AMOUNT_DEPOSIT)));
         RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
@@ -171,6 +179,26 @@ class AccountManagerTest {
                 () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.WITHDRAWAL),
                 () -> assertThat(capturedTransaction.getAmount()).isEqualTo(2 * AMOUNT_WITHDRAWAL),
                 () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
+        );
+    }
+
+    @Test
+    void should_executeTransaction_whenCurrentAccountExists_andBalanceIsNotEnough() {
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getCurrentAccount()));
+        RequestTransaction transactionDto = RequestTransaction.builder()
+                .accountId(ACCOUNT_ID)
+                .amount(2 * AMOUNT_WITHDRAWAL)
+                .type(TransactionType.WITHDRAWAL)
+                .build();
+
+        accountManager.executeTransaction(transactionDto);
+
+        verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
+        Transaction capturedTransaction = transactionArgumentCaptor.getValue();
+        assertAll(
+                () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.WITHDRAWAL),
+                () -> assertThat(capturedTransaction.getAmount()).isEqualTo(2 * AMOUNT_WITHDRAWAL),
+                () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
     }
 
@@ -199,7 +227,7 @@ class AccountManagerTest {
 
     @Test
     void should_getBalance_whenAccountExists() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
 
         BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
@@ -211,7 +239,7 @@ class AccountManagerTest {
 
     @Test
     void should_getBalance_andIgnoreFailedTransactions_whenAccountExists() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getSuccessfulAndUnsuccessfulTransactions());
 
         BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
@@ -233,7 +261,7 @@ class AccountManagerTest {
 
     @Test
     void getRecentTransactions() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
 
         List<Transaction> transactions = accountManager.getRecentTransactions(ACCOUNT_ID);
