@@ -24,11 +24,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(value = AccountController.ROOT)
 public class AccountController {
-    public static final String ROOT = "/account/management";
+    public static final String ROOT = "/account";
     public static final String CREATE = "/create";
-    public static final String DO_TRANSACTION = "/performtransaction";
-    public static final String BALANCE_ACCOUNT_ID = "/balance/{accountId}";
-    public static final String TRANSACTIONS_ACCOUNT_ID = "/transactions/{accountId}";
+    public static final String DO_TRANSACTION = "/do/transaction";
+    public static final String GET_BALANCE = "/get/balance/{accountId}";
+    public static final String GET_TRANSACTIONS = "/get/transactions/{accountId}";
     private final AccountManagementUseCase accountManager;
 
     @Operation(summary = "Create an account for a customer passing customer_id")
@@ -46,7 +46,7 @@ public class AccountController {
     }
 
     @Operation(summary = "Read account balance")
-    @GetMapping(BALANCE_ACCOUNT_ID)
+    @GetMapping(GET_BALANCE)
     public ResponseEntity<BalanceDto> getBalance(@Parameter(description = "id of the account for which balance is required")
                                                  @PathVariable("accountId") long accountId) {
         BalanceDto balance = accountManager.getBalance(accountId);
@@ -54,7 +54,7 @@ public class AccountController {
     }
 
     @Operation(summary = "List the last 10 transactions")
-    @GetMapping(TRANSACTIONS_ACCOUNT_ID)
+    @GetMapping(GET_TRANSACTIONS)
     public ResponseEntity<List<Transaction>> getLastTenTransactions(
             @Parameter(description = "id of the account for which transaction list is required")
             @PathVariable("accountId") long accountId) {

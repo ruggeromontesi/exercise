@@ -17,3 +17,9 @@ spring:
   flyway:
     enabled: true
 
+springdoc:
+  swagger-ui:
+    operations-sorter: alpha
+    path: /
+
+

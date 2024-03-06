@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static lt.danske.exercise.controller.AccountController.BALANCE_ACCOUNT_ID;
+import static lt.danske.exercise.controller.AccountController.GET_BALANCE;
 import static lt.danske.exercise.controller.AccountController.CREATE;
 import static lt.danske.exercise.controller.AccountController.DO_TRANSACTION;
 import static lt.danske.exercise.controller.AccountController.ROOT;
-import static lt.danske.exercise.controller.AccountController.TRANSACTIONS_ACCOUNT_ID;
+import static lt.danske.exercise.controller.AccountController.GET_TRANSACTIONS;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -144,7 +144,7 @@ public class IntegrationTests {
         transactionRepository.saveAndFlush(transaction);
         RequestTransaction failingWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .amount(10 * AMOUNT_WITHDRAWAL)
                 .build();
         ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
@@ -171,7 +171,7 @@ public class IntegrationTests {
         transactionRepository.saveAndFlush(transaction);
         RequestTransaction successfulWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .amount(AMOUNT_WITHDRAWAL)
                 .build();
         ResponseEntity<Transaction> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION,
@@ -199,11 +199,11 @@ public class IntegrationTests {
                 new HttpEntity<>(deposit), Transaction.class));
         RequestTransaction failingWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .amount((TIMES + 1) * AMOUNT_DEPOSIT)
                 .build();
         restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(failingWithdrawal), Transaction.class);
-        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + BALANCE_ACCOUNT_ID,
+        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + GET_BALANCE,
                 HttpMethod.GET, new HttpEntity<>(null), BalanceDto.class, createdAccount.getId());
         assertAll(
                 () -> assertThat(response).isNotNull(),
@@ -227,12 +227,12 @@ public class IntegrationTests {
                 new HttpEntity<>(deposit), Transaction.class));
         RequestTransaction failingWithdrawal = RequestTransaction.builder()
                 .accountId(createdAccount.getId())
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .amount(AMOUNT_WITHDRAWAL)
                 .build();
         restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(failingWithdrawal), Transaction.class);
         ResponseEntity<List<Transaction>> response = restTemplate.exchange(
-                LOCALHOST_8080 + ROOT + TRANSACTIONS_ACCOUNT_ID,
+                LOCALHOST_8080 + ROOT + GET_TRANSACTIONS,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -243,7 +243,7 @@ public class IntegrationTests {
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(response.getBody().get(0).getType()).isEqualTo(TransactionType.WITHDRAW)
+                () -> assertThat(response.getBody().get(0).getType()).isEqualTo(TransactionType.WITHDRAWAL)
         );
 
     }

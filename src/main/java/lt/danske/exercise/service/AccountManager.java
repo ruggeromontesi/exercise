@@ -93,7 +93,7 @@ public class AccountManager implements AccountManagementUseCase {
 
     private boolean isTransactionCausingNotAllowedOverdraft(RequestTransaction transactionDto, AccountType type) {
         return type == AccountType.SAVING
-                && transactionDto.getType() == TransactionType.WITHDRAW
+                && transactionDto.getType() == TransactionType.WITHDRAWAL
                 && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount();
     }
 

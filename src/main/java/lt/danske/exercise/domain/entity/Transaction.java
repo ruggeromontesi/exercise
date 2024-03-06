@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

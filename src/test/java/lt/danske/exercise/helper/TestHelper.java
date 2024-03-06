@@ -31,7 +31,7 @@ public class TestHelper {
         return Transaction.builder()
                 .id(i++)
                 .account(getAccount())
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .amount(amountWithdrawal)
                 .status(status)
                 .build();

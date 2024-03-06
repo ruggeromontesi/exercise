@@ -41,7 +41,7 @@ class TransactionRepositoryTest {
                 .build();
         Transaction transaction2 = Transaction.builder()
                 .account(savedAccount)
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .amount(11.0)
                 .status(TransactionStatus.SUCCESS)
                 .build();
@@ -58,7 +58,7 @@ class TransactionRepositoryTest {
                 },
                 () -> {
                     assert retrievedTransactions != null;
-                    assertThat(retrievedTransactions.get(1).getType()).isEqualTo(TransactionType.WITHDRAW);
+                    assertThat(retrievedTransactions.get(1).getType()).isEqualTo(TransactionType.WITHDRAWAL);
                 }
         );
     }

@@ -160,7 +160,7 @@ class AccountManagerTest {
         RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(2 * AMOUNT_WITHDRAWAL)
-                .type(TransactionType.WITHDRAW)
+                .type(TransactionType.WITHDRAWAL)
                 .build();
 
         accountManager.executeTransaction(transactionDto);
@@ -168,7 +168,7 @@ class AccountManagerTest {
         verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
         Transaction capturedTransaction = transactionArgumentCaptor.getValue();
         assertAll(
-                () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.WITHDRAW),
+                () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.WITHDRAWAL),
                 () -> assertThat(capturedTransaction.getAmount()).isEqualTo(2 * AMOUNT_WITHDRAWAL),
                 () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
         );
@@ -241,7 +241,7 @@ class AccountManagerTest {
         Transaction lastTransaction = transactions.stream().findFirst().orElseThrow();
         assertAll(
                 () -> assertThat(transactions).hasSize(AccountManager.COUNT_OF_MOST_RECENT_TRANSACTIONS),
-                () -> assertThat(lastTransaction.getType()).isEqualTo(TransactionType.WITHDRAW)
+                () -> assertThat(lastTransaction.getType()).isEqualTo(TransactionType.WITHDRAWAL)
         );
     }
 }
