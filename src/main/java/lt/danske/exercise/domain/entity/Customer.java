@@ -20,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@ToString
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
