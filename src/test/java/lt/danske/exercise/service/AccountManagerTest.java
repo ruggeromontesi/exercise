@@ -5,7 +5,7 @@ import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
-import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Customer;
@@ -62,7 +62,7 @@ class AccountManagerTest {
 
     @Test
     void should_createAccount_whenUserExist_and_currencyAndTypeAreProvided() {
-        CreateAccountDto createAccountDto = CreateAccountDto.builder()
+        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .accountType(AccountType.SAVING)
                 .userId(USER_ID)
                 .currency(Currency.EUR)
@@ -79,17 +79,17 @@ class AccountManagerTest {
                 .currency(Currency.EUR)
                 .build();
 
-        accountManager.createAccount(createAccountDto);
+        accountManager.createAccount(createAccountRequest);
         verify(accountRepository, times(1)).saveAndFlush(createdAccount);
     }
 
     @Test
     void shouldThrow_whenAccountTypeIsMissing() {
-        CreateAccountDto createAccountDto = CreateAccountDto.builder()
+        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .userId(USER_ID)
                 .currency(Currency.EUR)
                 .build();
-        Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountDto));
+        Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountRequest));
         assertThat(e.getMessage()).isEqualTo(MISSING_ACCOUNT_TYPE);
         verifyNoInteractions(customerRepository);
         verifyNoInteractions(accountRepository);
@@ -98,11 +98,11 @@ class AccountManagerTest {
 
     @Test
     void shouldThrow_whenCurrencyIsMissing() {
-        CreateAccountDto createAccountDto = CreateAccountDto.builder()
+        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .userId(USER_ID)
                 .accountType(AccountType.SAVING)
                 .build();
-        Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountDto));
+        Exception e = assertThrows(InvalidInputException.class, () -> accountManager.createAccount(createAccountRequest));
         assertThat(e.getMessage()).isEqualTo(MISSING_CURRENCY);
         verifyNoInteractions(customerRepository);
         verifyNoInteractions(accountRepository);
@@ -111,13 +111,13 @@ class AccountManagerTest {
 
     @Test
     void shouldThrow_whenUSerNotFound() {
-        CreateAccountDto createAccountDto = CreateAccountDto.builder()
+        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .accountType(AccountType.SAVING)
                 .userId(USER_ID)
                 .currency(Currency.EUR)
                 .build();
         when(customerRepository.findById(USER_ID)).thenReturn(Optional.empty());
-        Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountDto));
+        Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountRequest));
         assertThat(e.getMessage()).isEqualTo(String.format(USER_NOT_FOUND, USER_ID));
         verifyNoInteractions(accountRepository);
         verifyNoInteractions(transactionRepository);

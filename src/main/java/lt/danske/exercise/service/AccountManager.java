@@ -5,7 +5,7 @@ import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
-import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Customer;
@@ -33,7 +33,7 @@ public class AccountManager implements AccountManagementUseCase {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    public Account createAccount(CreateAccountDto accountDto) {
+    public Account createAccount(CreateAccountRequest accountDto) {
         validateCreateAccount(accountDto);
         Customer user = getBankUser(accountDto.getUserId());
         Account account = Account.builder()
@@ -50,7 +50,7 @@ public class AccountManager implements AccountManagementUseCase {
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    private void validateCreateAccount(CreateAccountDto accountDto) {
+    private void validateCreateAccount(CreateAccountRequest accountDto) {
         if (accountDto.getAccountType() == null) {
             throw new InvalidInputException(MISSING_ACCOUNT_TYPE);
         }

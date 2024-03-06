@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.domain.dto.BalanceDto;
-import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Transaction;
@@ -33,7 +33,7 @@ public class AccountController {
 
     @Operation(summary = "Create an account for a customer passing customer_id")
     @PostMapping(value = CREATE)
-    public ResponseEntity<Account> createAccount(@RequestBody @Valid CreateAccountDto account) {
+    public ResponseEntity<Account> createAccount(@RequestBody @Valid CreateAccountRequest account) {
         Account createdAccount = accountManager.createAccount(account);
         return ResponseEntity.ok().body(createdAccount);
     }

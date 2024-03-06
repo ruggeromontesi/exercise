@@ -5,7 +5,7 @@ import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.BalanceDto;
-import lt.danske.exercise.domain.dto.CreateAccountDto;
+import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.Transaction;
@@ -62,11 +62,11 @@ public class IntegrationTests {
     @Test
     void shouldThrow_whenUserNotFound() {
         RestTemplate restTemplate = new RestTemplate();
-        CreateAccountDto createAccountDto = CreateAccountDto.builder()
+        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
                 .accountType(AccountType.SAVING)
                 .userId(2L)
                 .build();
-        HttpEntity<CreateAccountDto> httpEntity = new HttpEntity<>(createAccountDto);
+        HttpEntity<CreateAccountRequest> httpEntity = new HttpEntity<>(createAccountRequest);
 
         assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
                 httpEntity, Account.class));
@@ -75,10 +75,10 @@ public class IntegrationTests {
     @Test
     void shouldCreateAccount() {
         RestTemplate restTemplate = new RestTemplate();
-        CreateAccountDto createAccountDto = getAccountDto();
+        CreateAccountRequest createAccountRequest = getAccountDto();
 
         ResponseEntity<Account> response = restTemplate.postForEntity(LOCALHOST_8080 + ROOT + CREATE,
-                new HttpEntity<>(createAccountDto), Account.class);
+                new HttpEntity<>(createAccountRequest), Account.class);
         List<Account> accounts = accountRepository.findByCustomerId(1L);
 
         assertAll(
@@ -92,8 +92,8 @@ public class IntegrationTests {
         );
     }
 
-    private static CreateAccountDto getAccountDto() {
-        return CreateAccountDto.builder()
+    private static CreateAccountRequest getAccountDto() {
+        return CreateAccountRequest.builder()
                 .accountType(AccountType.SAVING)
                 .currency(Currency.EUR)
                 .userId(1L)

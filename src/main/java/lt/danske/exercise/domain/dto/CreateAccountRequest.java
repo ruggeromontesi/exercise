@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 @Builder
 @Value
 @Validated
-public class CreateAccountDto {
+public class CreateAccountRequest {
     @NotNull
     Long userId;
     @NotNull
