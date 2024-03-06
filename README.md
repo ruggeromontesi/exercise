@@ -11,17 +11,23 @@ After running application API documentation is available at:
 http://localhost:8080/swagger-ui/index.html
 
 # how to create bank account
-Use POST method account/create, specify userId and account type: [SAVING, CURRENT]. System is "pre-loaded" with two users with id 1 and 2
+Use POST method account/create, specify userId and account type: [SAVING, CURRENT]. System is "pre-loaded" with two users with id 1 and 2.
+Response returns the id of the account created. Note it as you will need this id to perform all operations below
 
-# how to deposit money
-curl -X 'POST' 'http://localhost:8080/account/management/performtransaction' -H "Content-Type: application/json" -d '{ "accountId": 1, "type": "DEPOSIT", "amount": 200}'
-
-# how to withdraw money
-curl -X 'POST' 'http://localhost:8080/account/management/performtransaction' -H "Content-Type: application/json" -d '{ "accountId": 1, "type": "WITHDRAW", "amount": 50}'
+# how to deposit/ withdraw money
+Use POST method account/do/transaction. 
+Specify :
+accountId,
+positive amount,
+type of transaction: DEPOSIT or WITHDRAWAL
+Response returns transaction info such as transaction id, type, status, execution time
+If the amount of withdrawal is bigger than the available balance the transaction will not be performed.
 
 # how to get balance
-curl -X 'GET' 'http://localhost:8080/account/management/balance/1' -H "Content-Type: application/json"
+Use GET method account/get/balance/ and specify accountId
 
+# how to get transactions
+Use GET method account/get/transactions and specify accountId
 # h2 console
 available at http://localhost:8080/h2-console
 user: ruggero
