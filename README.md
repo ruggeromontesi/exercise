@@ -1,10 +1,9 @@
-# exercise
-# how to set it up
+# Exercise
+# How to set the project up
 * git clone https://github.com/ruggeromontesi/exercise.git
 * cd ./exercise
 * mvn clean package
 * mvn spring-boot:run
-* @pause
 
 # API documentation
 After running application API documentation is available at:
