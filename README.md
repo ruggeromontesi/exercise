@@ -8,7 +8,7 @@
 
 # API documentation
 After running application API documentation is available at:
-http://localhost:8080/swagger-ui/index.html
+http://localhost:8080/
 
 # how to create bank account
 Use POST method account/create, specify userId and account type: [SAVING, CURRENT]. System is "pre-loaded" with two users with id 1 and 2.
