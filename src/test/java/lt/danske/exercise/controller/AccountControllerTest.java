@@ -1,6 +1,9 @@
 package lt.danske.exercise.controller;
 
+import lt.danske.exercise.domain.Currency;
+import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
+import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
@@ -18,13 +21,15 @@ import org.springframework.http.ResponseEntity;
 import java.util.Objects;
 
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
+import static lt.danske.exercise.helper.TestHelper.AMOUNT_BALANCE;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
+import static lt.danske.exercise.helper.TestHelper.getBalanceDto;
+import static lt.danske.exercise.helper.TestHelper.getCreateAccountRequest;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
 import static lt.danske.exercise.helper.TestHelper.getRequestTransaction;
-import static lt.danske.exercise.helper.TestHelper.getCreateAccountRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.times;
@@ -67,11 +72,22 @@ class AccountControllerTest {
         assert transaction != null;
         assertThat(transaction.getType()).isEqualTo(TransactionType.DEPOSIT);
         assertThat(transaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT);
+        assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.SUCCESS);
     }
 
 
     @Test
-    void getBalance() {
+    void should_getBalance() {
+        when(accountManager.getBalance(ACCOUNT_ID)).thenReturn(getBalanceDto(AMOUNT_BALANCE));
+
+        ResponseEntity<BalanceDto> response = accountController.getBalance(ACCOUNT_ID);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        BalanceDto balanceDto = response.getBody();
+        assert balanceDto != null;
+        assertThat(balanceDto.getAmount()).isEqualTo(AMOUNT_BALANCE);
+        assertThat(balanceDto.getCurrency()).isEqualTo(Currency.EUR);
+
     }
 
     @Test
