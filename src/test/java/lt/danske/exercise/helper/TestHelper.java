@@ -4,6 +4,7 @@ import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
+import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.entity.Customer;
@@ -28,10 +29,18 @@ public class TestHelper {
         return Stream.of(deposits, withdrawal).flatMap(Collection::stream).toList();
     }
 
+    public static RequestTransaction getRequestTransaction(TransactionType transactionType, double amount) {
+        return RequestTransaction.builder()
+                .accountId(ACCOUNT_ID)
+                .type(transactionType)
+                .amount(amount)
+                .build();
+    }
+
     public static Transaction getWithdrawal(double amountWithdrawal, TransactionStatus status) {
         return Transaction.builder()
                 .id(transactionCounter++)
-                .account(getSavingAccount())
+                .account(getAccount(AccountType.SAVING))
                 .type(TransactionType.WITHDRAWAL)
                 .amount(amountWithdrawal)
                 .status(status)
@@ -41,27 +50,19 @@ public class TestHelper {
     public static Transaction getDeposit(double amountDeposit) {
         return Transaction.builder()
                 .id(transactionCounter++)
-                .account(getSavingAccount())
+                .account(getAccount(AccountType.SAVING))
                 .type(TransactionType.DEPOSIT)
                 .amount(amountDeposit)
                 .status(TransactionStatus.SUCCESS)
                 .build();
     }
 
-    public static Account getSavingAccount() {
+    public static Account getAccount(AccountType accountType) {
         return Account.builder()
                 .id(ACCOUNT_ID)
                 .customer(getCustomer())
-                .type(AccountType.SAVING)
+                .type(accountType)
                 .currency(Currency.EUR)
-                .build();
-    }
-
-    public static Account getCurrentAccount() {
-        return Account.builder()
-                .id(ACCOUNT_ID)
-                .currency(Currency.EUR)
-                .type(AccountType.CURRENT)
                 .build();
     }
 
@@ -74,7 +75,9 @@ public class TestHelper {
     }
 
     public static List<Transaction> getSuccessfulAndUnsuccessfulTransactions() {
-        return List.of(getDeposit(AMOUNT_DEPOSIT), getWithdrawal(10 * AMOUNT_WITHDRAWAL, TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE));
+        return List.of(
+                getDeposit(AMOUNT_DEPOSIT),
+                getWithdrawal(10 * AMOUNT_WITHDRAWAL, TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE));
     }
 
     public static CreateAccountRequest getCreateAccountRequest() {
@@ -84,4 +87,6 @@ public class TestHelper {
                 .currency(Currency.EUR)
                 .build();
     }
+
+
 }

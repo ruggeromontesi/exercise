@@ -34,10 +34,9 @@ import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
+import static lt.danske.exercise.helper.TestHelper.getAccount;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
-import static lt.danske.exercise.helper.TestHelper.getCurrentAccount;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
-import static lt.danske.exercise.helper.TestHelper.getSavingAccount;
 import static lt.danske.exercise.helper.TestHelper.getSuccessfulAndUnsuccessfulTransactions;
 import static lt.danske.exercise.service.AccountManager.MISSING_ACCOUNT_TYPE;
 import static lt.danske.exercise.service.AccountManager.MISSING_CURRENCY;
@@ -132,7 +131,7 @@ class AccountManagerTest {
                 .amount(AMOUNT_DEPOSIT)
                 .type(TransactionType.DEPOSIT)
                 .build();
-        Account account = getSavingAccount();
+        Account account = getAccount(AccountType.SAVING);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
         accountManager.executeTransaction(transaction);
@@ -149,7 +148,7 @@ class AccountManagerTest {
 
     @Test
     void shouldNot_executeTransaction_whenSavingAccountExists_andBalanceIsNotEnough() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(List.of(getDeposit(0.5 * AMOUNT_DEPOSIT)));
         RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
@@ -170,7 +169,7 @@ class AccountManagerTest {
 
     @Test
     void should_executeTransaction_whenCurrentAccountExists_andBalanceIsNotEnough() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getCurrentAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.CURRENT)));
         RequestTransaction transactionDto = RequestTransaction.builder()
                 .accountId(ACCOUNT_ID)
                 .amount(2 * AMOUNT_WITHDRAWAL)
@@ -213,7 +212,7 @@ class AccountManagerTest {
 
     @Test
     void should_getBalance_whenAccountExists() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
 
         BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
@@ -225,7 +224,7 @@ class AccountManagerTest {
 
     @Test
     void should_getBalance_andIgnoreFailedTransactions_whenAccountExists() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getSuccessfulAndUnsuccessfulTransactions());
 
         BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
@@ -247,7 +246,7 @@ class AccountManagerTest {
 
     @Test
     void getRecentTransactions() {
-        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getSavingAccount()));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
 
         List<Transaction> transactions = accountManager.getRecentTransactions(ACCOUNT_ID);
