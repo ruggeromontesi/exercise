@@ -1,12 +1,10 @@
 package lt.danske.exercise.exceptions;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Builder
 @AllArgsConstructor
-@Data
+@Getter
 public class FieldErrorResponse {
     private String fieldName;
     private String errorMessage;
