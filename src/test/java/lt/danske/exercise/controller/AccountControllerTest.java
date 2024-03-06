@@ -1,6 +1,7 @@
 package lt.danske.exercise.controller;
 
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
+import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
 import lt.danske.exercise.service.AccountManager;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import java.util.Objects;
 import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
-import static lt.danske.exercise.helper.TestHelper.getAccount;
+import static lt.danske.exercise.helper.TestHelper.getSavingAccount;
 import static lt.danske.exercise.helper.TestHelper.getCreateAccountRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -34,7 +35,7 @@ class AccountControllerTest {
     @Test
     void should_createAccount() {
         CreateAccountRequest request = getCreateAccountRequest();
-        when(accountManager.createAccount(request)).thenReturn(getAccount());
+        when(accountManager.createAccount(request)).thenReturn(getSavingAccount());
 
         ResponseEntity<Account> result = accountController.createAccount(request);
 
@@ -50,6 +51,7 @@ class AccountControllerTest {
 
     @Test
     void executeTransaction() {
+        RequestTransaction requestTransaction = RequestTransaction.builder().build();
     }
 
     @Test

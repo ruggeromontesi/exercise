@@ -1,6 +1,5 @@
 package lt.danske.exercise.service;
 
-import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
@@ -8,14 +7,15 @@ import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
+import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.entity.Customer;
 import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.exceptions.AccountNotFoundException;
 import lt.danske.exercise.exceptions.InvalidInputException;
 import lt.danske.exercise.exceptions.UserNotFoundException;
 import lt.danske.exercise.repository.AccountRepository;
-import lt.danske.exercise.repository.TransactionRepository;
 import lt.danske.exercise.repository.CustomerRepository;
+import lt.danske.exercise.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +35,9 @@ import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.USER_ID;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
+import static lt.danske.exercise.helper.TestHelper.getCurrentAccount;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
+import static lt.danske.exercise.helper.TestHelper.getSavingAccount;
 import static lt.danske.exercise.helper.TestHelper.getSuccessfulAndUnsuccessfulTransactions;
 import static lt.danske.exercise.service.AccountManager.MISSING_ACCOUNT_TYPE;
 import static lt.danske.exercise.service.AccountManager.MISSING_CURRENCY;
@@ -143,22 +145,6 @@ class AccountManagerTest {
                 () -> assertThat(capturedTransaction.getAmount()).isEqualTo(AMOUNT_DEPOSIT),
                 () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.SUCCESS)
         );
-    }
-
-    private static Account getSavingAccount() {
-        return Account.builder()
-                .id(ACCOUNT_ID)
-                .currency(Currency.EUR)
-                .type(AccountType.SAVING)
-                .build();
-    }
-
-    private static Account getCurrentAccount() {
-        return Account.builder()
-                .id(ACCOUNT_ID)
-                .currency(Currency.EUR)
-                .type(AccountType.CURRENT)
-                .build();
     }
 
     @Test

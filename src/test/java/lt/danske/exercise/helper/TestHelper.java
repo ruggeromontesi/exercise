@@ -31,7 +31,7 @@ public class TestHelper {
     public static Transaction getWithdrawal(double amountWithdrawal, TransactionStatus status) {
         return Transaction.builder()
                 .id(transactionCounter++)
-                .account(getAccount())
+                .account(getSavingAccount())
                 .type(TransactionType.WITHDRAWAL)
                 .amount(amountWithdrawal)
                 .status(status)
@@ -41,19 +41,27 @@ public class TestHelper {
     public static Transaction getDeposit(double amountDeposit) {
         return Transaction.builder()
                 .id(transactionCounter++)
-                .account(getAccount())
+                .account(getSavingAccount())
                 .type(TransactionType.DEPOSIT)
                 .amount(amountDeposit)
                 .status(TransactionStatus.SUCCESS)
                 .build();
     }
 
-    public static Account getAccount() {
+    public static Account getSavingAccount() {
         return Account.builder()
                 .id(ACCOUNT_ID)
                 .customer(getCustomer())
                 .type(AccountType.SAVING)
                 .currency(Currency.EUR)
+                .build();
+    }
+
+    public static Account getCurrentAccount() {
+        return Account.builder()
+                .id(ACCOUNT_ID)
+                .currency(Currency.EUR)
+                .type(AccountType.CURRENT)
                 .build();
     }
 
