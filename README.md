@@ -7,7 +7,7 @@
 
 # API documentation
 After running application API documentation is available at:
-http://localhost:8080/
+http://localhost:8080
 
 # How to create bank account
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccount specify 
@@ -22,7 +22,7 @@ Use POST method  http://localhost:8080/swagger-ui/index.html#/account-controller
 Specify :
 * accountId,
 * positive amount,
-* type of transaction: DEPOSIT or WITHDRAWAL
+* type of transaction: [DEPOSIT, WITHDRAWAL]
   
 Response returns transaction info such as transaction id, type, status, execution time
 If the amount of withdrawal is bigger than the available balance the transaction will not be performed.
