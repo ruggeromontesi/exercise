@@ -45,7 +45,7 @@ class AccountRepositoryTest {
 
     @Test
     void shouldNotFindByCustomerId() {
-        Customer customer = entityManager.find(Customer.class, 2L);
+        Customer customer = entityManager.find(Customer.class, 11L);
         Account account = Account.builder()
                 .currency(Currency.EUR)
                 .type(AccountType.SAVING)
@@ -53,6 +53,6 @@ class AccountRepositoryTest {
                 .build();
         entityManager.persist(account);
 
-        assertThat(accountRepository.findByCustomerId(2L)).isEmpty();
+        assertThat(accountRepository.findByCustomerId(11L)).isEmpty();
     }
 }

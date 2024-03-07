@@ -7,4 +7,5 @@ create table customer
     username varchar(255),
     primary key (id)
 );
-insert into customer (username,id) values ('ruggero',1);
+insert into customer (username,id) values ('customer_a',1);
+insert into customer (username,id) values ('customer_b',2);

@@ -1,7 +1,7 @@
 package lt.danske.exercise.domain.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lt.danske.exercise.domain.TransactionType;
@@ -11,11 +11,11 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Validated
 public class RequestTransaction {
-    @NotNull
+    @Schema(name = "Account ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     Long accountId;
-    @NotNull
+    @Schema(name = "Amount", example = "100.0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Min(value = 0)
     Double amount;
-    @NotNull
+    @Schema(name = "Transaction type", example = "DEPOSIT", requiredMode = Schema.RequiredMode.REQUIRED)
     TransactionType type;
 }
