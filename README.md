@@ -33,7 +33,7 @@ If the amount of withdrawal is bigger than the available balance the transaction
 # How to get balance
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/getBalance 
 
-specify
+Specify
 * accountId
 
 # How to get transactions
