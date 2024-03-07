@@ -10,7 +10,9 @@ After running application API documentation is available at:
 http://localhost:8080
 
 # How to create bank account
-Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccount specify 
+Use http://localhost:8080/swagger-ui/index.html#/account-controller/createAccount 
+
+specify 
  * userId
  * account type: [SAVING, CURRENT].
 
@@ -19,6 +21,7 @@ Response returns the id of the account created. Note it as you will need this id
 
 # How to deposit/ withdraw money
 Use POST method  http://localhost:8080/swagger-ui/index.html#/account-controller/executeTransaction. 
+
 Specify :
 * accountId,
 * positive amount,
@@ -29,11 +32,13 @@ If the amount of withdrawal is bigger than the available balance the transaction
 
 # How to get balance
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/getBalance 
+
 specify
 * accountId
 
 # How to get transactions
 Use http://localhost:8080/swagger-ui/index.html#/account-controller/getLastTenTransactions
+
 Specify 
 * accountId
 # h2 console
@@ -45,6 +50,8 @@ pwd : 1234
 https://sonarcloud.io/summary/new_code?id=ruggeromontesi_exercise&branch=master
 
 # How will you design/organize the micro services for your API product?
+In this case I decided to use a single service as the functionalities required can be logically gathered in a single unit.
+In case of additional functionalities like, for example: notifications, messaging, report generation, "credit profiling" I would create additional services (i.e.: applications) communicating with this one through rest API, Kafka , MQ.
 
 # How will you break down the business requirements into user stories?
 * 1 As a user, I would like to create a saving account for the customer, knowing his id, specifying account type (SAVING, CURRENT) and the currency (EUR).
