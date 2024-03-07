@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lt.danske.exercise.domain.entity.AccountType;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.BalanceInfo;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
@@ -97,11 +97,11 @@ public class AccountManager implements AccountManagementUseCase {
                 && getBalanceAmount(transactionDto.getAccountId()) < transactionDto.getAmount();
     }
 
-    public BalanceDto getBalance(long accountId) {
+    public BalanceInfo getBalance(long accountId) {
         Account account = getAccount(accountId);
         double amount = getBalanceAmount(accountId);
 
-        return BalanceDto.builder()
+        return BalanceInfo.builder()
                 .amount(amount)
                 .currency(account.getCurrency())
                 .build();

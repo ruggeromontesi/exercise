@@ -3,7 +3,6 @@ package lt.danske.exercise.helper;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.dto.BalanceDto;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
@@ -18,7 +17,6 @@ import java.util.stream.Stream;
 
 public class TestHelper {
     public static final double AMOUNT_WITHDRAWAL = 50.0;
-    public static final double AMOUNT_BALANCE = 1800.5;
     public static long CUSTOMER_ID = 1001L;
     public static final String USERNAME = "TEST_USERNAME";
     public static final long ACCOUNT_ID = 100001L;
@@ -82,18 +80,11 @@ public class TestHelper {
                 getWithdrawal(10 * AMOUNT_WITHDRAWAL, TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE));
     }
 
-    public static CreateAccountRequest getCreateAccountRequest() {
+    public static CreateAccountRequest getValidCreateAccountRequest() {
         return CreateAccountRequest.builder()
                 .userId(CUSTOMER_ID)
                 .accountType(AccountType.SAVING)
                 .currency(Currency.EUR)
-                .build();
-    }
-
-    public static BalanceDto getBalanceDto(double amountBalance) {
-        return BalanceDto.builder()
-                .currency(Currency.EUR)
-                .amount(amountBalance)
                 .build();
     }
 }

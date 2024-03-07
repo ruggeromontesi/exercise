@@ -3,7 +3,7 @@ package lt.danske.exercise.service;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.BalanceInfo;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
@@ -13,6 +13,7 @@ import lt.danske.exercise.domain.entity.Transaction;
 import lt.danske.exercise.exceptions.AccountNotFoundException;
 import lt.danske.exercise.exceptions.InvalidInputException;
 import lt.danske.exercise.exceptions.UserNotFoundException;
+import lt.danske.exercise.helper.TestHelper;
 import lt.danske.exercise.repository.AccountRepository;
 import lt.danske.exercise.repository.CustomerRepository;
 import lt.danske.exercise.repository.TransactionRepository;
@@ -33,9 +34,10 @@ import static lt.danske.exercise.helper.TestHelper.ACCOUNT_ID;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_DEPOSIT;
 import static lt.danske.exercise.helper.TestHelper.AMOUNT_WITHDRAWAL;
 import static lt.danske.exercise.helper.TestHelper.CUSTOMER_ID;
-import static lt.danske.exercise.helper.TestHelper.USERNAME;
 import static lt.danske.exercise.helper.TestHelper.getAccount;
 import static lt.danske.exercise.helper.TestHelper.getAllSuccessfulTransactions;
+import static lt.danske.exercise.helper.TestHelper.getRequestTransaction;
+import static lt.danske.exercise.helper.TestHelper.getValidCreateAccountRequest;
 import static lt.danske.exercise.helper.TestHelper.getDeposit;
 import static lt.danske.exercise.helper.TestHelper.getSuccessfulAndUnsuccessfulTransactions;
 import static lt.danske.exercise.service.AccountManager.MISSING_ACCOUNT_TYPE;
@@ -65,16 +67,8 @@ class AccountManagerTest {
 
     @Test
     void should_createAccount_whenUserExists_and_currencyAndTypeAreProvided() {
-        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
-                .accountType(AccountType.SAVING)
-                .userId(CUSTOMER_ID)
-                .currency(Currency.EUR)
-                .build();
-        Customer customer = Customer.builder()
-                .id(CUSTOMER_ID)
-                .username(USERNAME)
-                .accounts(List.of())
-                .build();
+        CreateAccountRequest createAccountRequest = getValidCreateAccountRequest();
+        Customer customer = TestHelper.getCustomer();
         when(customerRepository.findById(CUSTOMER_ID)).thenReturn(Optional.of(customer));
 
         accountManager.createAccount(createAccountRequest);
@@ -116,11 +110,7 @@ class AccountManagerTest {
 
     @Test
     void shouldThrow_whenUSerNotFound() {
-        CreateAccountRequest createAccountRequest = CreateAccountRequest.builder()
-                .accountType(AccountType.SAVING)
-                .userId(CUSTOMER_ID)
-                .currency(Currency.EUR)
-                .build();
+        CreateAccountRequest createAccountRequest = getValidCreateAccountRequest();
         when(customerRepository.findById(CUSTOMER_ID)).thenReturn(Optional.empty());
         Exception e = assertThrows(UserNotFoundException.class, () -> accountManager.createAccount(createAccountRequest));
         assertThat(e.getMessage()).isEqualTo(String.format(USER_NOT_FOUND, CUSTOMER_ID));
@@ -130,11 +120,7 @@ class AccountManagerTest {
 
     @Test
     void should_executeTransaction_whenAccountExists_andBalanceIsEnough() {
-        RequestTransaction transaction = RequestTransaction.builder()
-                .accountId(ACCOUNT_ID)
-                .amount(AMOUNT_DEPOSIT)
-                .type(TransactionType.DEPOSIT)
-                .build();
+        RequestTransaction transaction = TestHelper.getRequestTransaction(TransactionType.DEPOSIT, AMOUNT_DEPOSIT);
         Account account = getAccount(AccountType.SAVING);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
@@ -154,11 +140,7 @@ class AccountManagerTest {
     void shouldNot_executeTransaction_whenSavingAccountExists_andBalanceIsNotEnough() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(List.of(getDeposit(0.5 * AMOUNT_DEPOSIT)));
-        RequestTransaction transactionDto = RequestTransaction.builder()
-                .accountId(ACCOUNT_ID)
-                .amount(2 * AMOUNT_WITHDRAWAL)
-                .type(TransactionType.WITHDRAWAL)
-                .build();
+        RequestTransaction transactionDto = getRequestTransaction(TransactionType.WITHDRAWAL, 2 * AMOUNT_WITHDRAWAL);
 
         accountManager.executeTransaction(transactionDto);
 
@@ -174,13 +156,9 @@ class AccountManagerTest {
     @Test
     void should_executeTransaction_whenCurrentAccountExists_andBalanceIsNotEnough() {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.CURRENT)));
-        RequestTransaction transactionDto = RequestTransaction.builder()
-                .accountId(ACCOUNT_ID)
-                .amount(2 * AMOUNT_WITHDRAWAL)
-                .type(TransactionType.WITHDRAWAL)
-                .build();
+        RequestTransaction requestWithdrawal = getRequestTransaction(TransactionType.WITHDRAWAL, 2 * AMOUNT_WITHDRAWAL);
 
-        accountManager.executeTransaction(transactionDto);
+        accountManager.executeTransaction(requestWithdrawal);
 
         verify(transactionRepository, times(1)).save(transactionArgumentCaptor.capture());
         Transaction capturedTransaction = transactionArgumentCaptor.getValue();
@@ -193,23 +171,15 @@ class AccountManagerTest {
 
     @Test
     void shouldThrowException_whenAccountDoesNotExist() {
-        RequestTransaction transaction = RequestTransaction.builder()
-                .accountId(ACCOUNT_ID)
-                .amount(AMOUNT_DEPOSIT)
-                .type(TransactionType.DEPOSIT)
-                .build();
+        RequestTransaction requestDeposit = getRequestTransaction(TransactionType.DEPOSIT, AMOUNT_DEPOSIT);
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
-        Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.executeTransaction(transaction));
+        Exception e = assertThrows(AccountNotFoundException.class, () -> accountManager.executeTransaction(requestDeposit));
         assertThat(e.getMessage()).isEqualTo(String.format(ACCOUNT_NOT_FOUND, ACCOUNT_ID));
     }
 
     @Test
     void shouldThrow_whenAmountNegative() {
-        RequestTransaction transaction = RequestTransaction.builder()
-                .accountId(ACCOUNT_ID)
-                .amount(-1 * AMOUNT_DEPOSIT)
-                .type(TransactionType.DEPOSIT)
-                .build();
+        RequestTransaction transaction = getRequestTransaction(TransactionType.DEPOSIT, -1 * AMOUNT_DEPOSIT);
         Exception e = assertThrows(InvalidInputException.class, () -> accountManager.executeTransaction(transaction));
         assertThat(e.getMessage()).isEqualTo(AccountManager.AMOUNT_MUST_BE_POSITIVE);
     }
@@ -219,10 +189,10 @@ class AccountManagerTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getAllSuccessfulTransactions(21));
 
-        BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
-        assertThat(balance).satisfies(
-                b -> assertThat(b.getAmount()).isEqualTo(20 * AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
-                b -> assertThat(b.getCurrency()).isEqualTo(Currency.EUR)
+        BalanceInfo balanceInfo = accountManager.getBalance(ACCOUNT_ID);
+        assertThat(balanceInfo).satisfies(
+                balance -> assertThat(balance.getAmount()).isEqualTo(20 * AMOUNT_DEPOSIT - AMOUNT_WITHDRAWAL),
+                balance -> assertThat(balance.getCurrency()).isEqualTo(Currency.EUR)
         );
     }
 
@@ -231,7 +201,7 @@ class AccountManagerTest {
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(getAccount(AccountType.SAVING)));
         when(transactionRepository.findByAccountId(ACCOUNT_ID)).thenReturn(getSuccessfulAndUnsuccessfulTransactions());
 
-        BalanceDto balance = accountManager.getBalance(ACCOUNT_ID);
+        BalanceInfo balance = accountManager.getBalance(ACCOUNT_ID);
 
         assertThat(balance).satisfies(
                 b -> assertThat(b.getAmount()).isEqualTo(AMOUNT_DEPOSIT),

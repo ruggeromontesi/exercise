@@ -3,7 +3,7 @@ package lt.danske.exercise.integration;
 import lt.danske.exercise.domain.Currency;
 import lt.danske.exercise.domain.TransactionStatus;
 import lt.danske.exercise.domain.TransactionType;
-import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.BalanceInfo;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
@@ -206,8 +206,8 @@ class IntegrationTests {
                 .amount((TIMES + 1) * AMOUNT_DEPOSIT)
                 .build();
         restTemplate.postForEntity(LOCALHOST_8080 + ROOT + DO_TRANSACTION, new HttpEntity<>(failingWithdrawal), Transaction.class);
-        ResponseEntity<BalanceDto> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + GET_BALANCE,
-                HttpMethod.GET, new HttpEntity<>(null), BalanceDto.class, createdAccount.getId());
+        ResponseEntity<BalanceInfo> response = restTemplate.exchange(LOCALHOST_8080 + ROOT + GET_BALANCE,
+                HttpMethod.GET, new HttpEntity<>(null), BalanceInfo.class, createdAccount.getId());
         assertAll(
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),

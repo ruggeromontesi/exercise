@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lt.danske.exercise.domain.dto.BalanceDto;
+import lt.danske.exercise.domain.dto.BalanceInfo;
 import lt.danske.exercise.domain.dto.CreateAccountRequest;
 import lt.danske.exercise.domain.dto.RequestTransaction;
 import lt.danske.exercise.domain.entity.Account;
@@ -47,9 +47,9 @@ public class AccountController {
 
     @Operation(summary = "Read account balance")
     @GetMapping(GET_BALANCE)
-    public ResponseEntity<BalanceDto> getBalance(@Parameter(description = "id of the account for which balance is required")
+    public ResponseEntity<BalanceInfo> getBalance(@Parameter(description = "id of the account for which balance is required")
                                                  @PathVariable("accountId") long accountId) {
-        BalanceDto balance = accountManager.getBalance(accountId);
+        BalanceInfo balance = accountManager.getBalance(accountId);
         return ResponseEntity.ok(balance);
     }
 
