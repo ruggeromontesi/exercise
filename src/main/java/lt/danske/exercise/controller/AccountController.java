@@ -40,9 +40,9 @@ public class AccountController {
 
     @Operation(summary = "Perform a DEPOSIT/WITHDRAWAL on account given account id")
     @PostMapping(value = DO_TRANSACTION)
-    public ResponseEntity<Transaction> executeTransaction(@RequestBody RequestTransaction transaction) {
-        Transaction a = accountManager.executeTransaction(transaction);
-        return ResponseEntity.ok(a);
+    public ResponseEntity<Transaction> executeTransaction(@RequestBody RequestTransaction requestTransaction) {
+        Transaction transaction = accountManager.executeTransaction(requestTransaction);
+        return ResponseEntity.ok(transaction);
     }
 
     @Operation(summary = "Read account balance")

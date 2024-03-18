@@ -17,8 +17,7 @@
         <java.version>17</java.version>
         <sonar.organization>ruggeromontesi</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <jacoco.version>0.8.2</jacoco.version>
-        <flyway.version>10.4.1</flyway.version>
+       <flyway.version>10.4.1</flyway.version>
     </properties>
     <dependencies>
         <dependency>
@@ -67,7 +66,6 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.7</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>

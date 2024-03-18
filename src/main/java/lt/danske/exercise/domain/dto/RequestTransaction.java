@@ -11,11 +11,11 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Validated
 public class RequestTransaction {
-    @Schema(name = "Account ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     Long accountId;
-    @Schema(name = "Amount", example = "100.0", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(example = "100.0", requiredMode = Schema.RequiredMode.REQUIRED)
     @Min(value = 0)
     Double amount;
-    @Schema(name = "Transaction type", example = "DEPOSIT", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(example = "DEPOSIT", requiredMode = Schema.RequiredMode.REQUIRED)
     TransactionType type;
 }
