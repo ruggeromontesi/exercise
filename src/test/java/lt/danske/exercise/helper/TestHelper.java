@@ -24,7 +24,9 @@ public class TestHelper {
     private static long transactionCounter = 0;
 
     public static List<Transaction> getAllSuccessfulTransactions(int numberOfTransactions) {
-        List<Transaction> deposits = IntStream.range(0, numberOfTransactions - 1).mapToObj(i -> getDeposit(AMOUNT_DEPOSIT)).toList();
+        List<Transaction> deposits = IntStream.range(0, numberOfTransactions - 1)
+                .mapToObj(i -> getDeposit(AMOUNT_DEPOSIT))
+                .toList();
         List<Transaction> withdrawal = List.of(getWithdrawal(AMOUNT_WITHDRAWAL, TransactionStatus.SUCCESS));
         return Stream.of(deposits, withdrawal).flatMap(Collection::stream).toList();
     }
