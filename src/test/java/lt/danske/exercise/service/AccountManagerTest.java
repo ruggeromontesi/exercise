@@ -149,7 +149,7 @@ class AccountManagerTest {
         assertAll(
                 () -> assertThat(capturedTransaction.getType()).isEqualTo(TransactionType.WITHDRAWAL),
                 () -> assertThat(capturedTransaction.getAmount()).isEqualTo(2 * AMOUNT_WITHDRAWAL),
-                () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
+                () -> assertThat(capturedTransaction.getStatus()).isEqualTo(TransactionStatus.FAILURE_NOT_SUFFICIENT_FUNDS)
         );
     }
 

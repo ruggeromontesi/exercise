@@ -79,7 +79,7 @@ public class TestHelper {
     public static List<Transaction> getSuccessfulAndUnsuccessfulTransactions() {
         return List.of(
                 getDeposit(AMOUNT_DEPOSIT),
-                getWithdrawal(10 * AMOUNT_WITHDRAWAL, TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE));
+                getWithdrawal(10 * AMOUNT_WITHDRAWAL, TransactionStatus.FAILURE_NOT_SUFFICIENT_FUNDS));
     }
 
     public static CreateAccountRequest getValidCreateAccountRequest() {

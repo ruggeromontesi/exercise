@@ -86,7 +86,7 @@ public class AccountManager implements AccountManagementUseCase {
 
     private TransactionStatus getTransactionStatus(RequestTransaction transactionDto, AccountType accountType) {
         if (isTransactionCausingNotAllowedOverdraft(transactionDto, accountType)) {
-            return TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE;
+            return TransactionStatus.FAILURE_NOT_SUFFICIENT_FUNDS;
         }
         return TransactionStatus.SUCCESS;
     }

@@ -157,7 +157,7 @@ class IntegrationTests {
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(accountManager.getBalance(createdAccount.getId()).getAmount()).isEqualTo(AMOUNT_DEPOSIT),
                 () -> assertThat(Objects.requireNonNull(response.getBody()).getStatus())
-                        .isEqualTo(TransactionStatus.FAILURE_NOT_ENOUGH_BALANCE)
+                        .isEqualTo(TransactionStatus.FAILURE_NOT_SUFFICIENT_FUNDS)
         );
     }
 
